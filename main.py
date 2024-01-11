@@ -16,11 +16,9 @@ def contrastive_loss(v1, v2):
   labels = torch.arange(logits.shape[0], device=v1.device)
   return CE(logits, labels) + CE(torch.transpose(logits, 0, 1), labels)
 
-model_name = 'gpt2'
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+model_name = 'allenai/scibert_scivocab_uncased'
 
-if (model_name == "gpt2"):
-    tokenizer.pad_token = tokenizer.eos_token
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
 val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
