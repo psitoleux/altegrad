@@ -62,10 +62,10 @@ class GATEncoder(GraphEncoder):
         GraphEncoder.__init__(self,num_node_features, nout, nhid, graph_hidden_channels)
         
         self.layers = []
-        self.layers += [GATv2Conv(num_node_features, graph_hidden_channels)]
+        self.layers += [GATv2Conv(num_node_features, graph_hidden_channels).to(device)]
         
         for i in range(n_layers-1):
-            self.layers += [GATv2Conv(graph_hidden_channels, graph_hidden_channels)]
+            self.layers += [GATv2Conv(graph_hidden_channels, graph_hidden_channels).to(device)]
 
     def forward(self, graph_batch):
 
