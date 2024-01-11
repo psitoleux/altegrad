@@ -58,16 +58,14 @@ class GCNEncoder(GraphEncoder):
 
 
 class GATEncoder(GraphEncoder):
-    def __init__ (self, num_node_features, nout, nhid, graph_hidden_channels, nlayers=3):
-        GraphEncoder.__init__(self,num_node_features, nout, nhid, graph_hidden_channels)
+    def __init__ (self, num_node_features, nout, nhid, graph_hidden_channels):
+        GraphEncoder.__init__(self,num_node_features, nout, nhid, graph_hidden_channels,n_layers = 3)
         
-
         self.layers = []
         self.layers += [GATv2Conv(num_node_features, graph_hidden_channels)]
         
-        for i in range(n_layers-1):
-            self.layers += [GATv2Conv(graph_hidden_channels, graph_hidden_channels)]
-
+               for i in range(n_layers-1):
+                   self.layers += [GATv2Conv(graph_hidden_channels, graph_hidden_channels)]
 
     def forward(self, graph_batch):
 
