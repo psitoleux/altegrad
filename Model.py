@@ -1,9 +1,10 @@
 from torch import nn
 import torch.nn.functional as F
 
-from torch_geometric.nn import GCNConv
+from torch_geometric.nn import GCNConv, GATv2Conv
 from torch_geometric.nn import global_mean_pool
 from transformers import AutoModel
+
 
 
 class GraphEncoder(nn.Module):
@@ -13,25 +14,72 @@ class GraphEncoder(nn.Module):
         self.nout = nout
         self.relu = nn.ReLU()
         self.ln = nn.LayerNorm((nout))
-        self.conv1 = GCNConv(num_node_features, graph_hidden_channels)
-        self.conv2 = GCNConv(graph_hidden_channels, graph_hidden_channels)
-        self.conv3 = GCNConv(graph_hidden_channels, graph_hidden_channels)
+
         self.mol_hidden1 = nn.Linear(graph_hidden_channels, nhid)
         self.mol_hidden2 = nn.Linear(nhid, nout)
+        
 
-    def forward(self, graph_batch):
+    def mlp(self, x):
+        x = self.mol_hidden1(x).relu()
+        x = self.mol_hidden2(x)
+
+        return x
+
+    def get_batch(self, graph_batch):
         x = graph_batch.x
         edge_index = graph_batch.edge_index
         batch = graph_batch.batch
+
+        return x, egde_index, batch
+
+
+class GCNEncoder(nn.Module):
+    def __init__(self, num_node_features, nout, nhid, graph_hidden_channels):
+        super(GCNEncoder, self).__init__(num_node_features, nout, nhid, graph_hidden_channels)
+
+        self.conv1 = GCNConv(num_node_features, graph_hidden_channels)
+        self.conv2 = GCNConv(graph_hidden_channels, graph_hidden_channels)
+        self.conv3 = GCNConv(graph_hidden_channels, graph_hidden_channels)
+
+    def forward(self, graph_batch):
+
+        x, edge_index, batch = self.get_batch(graph_batch)
+
         x = self.conv1(x, edge_index)
         x = x.relu()
         x = self.conv2(x, edge_index)
         x = x.relu()
         x = self.conv3(x, edge_index)
         x = global_mean_pool(x, batch)
-        x = self.mol_hidden1(x).relu()
-        x = self.mol_hidden2(x)
+
+        x = self.mlp(x)
+
         return x
+
+
+class GATEncoder(nn.Module):
+    def __init__(self, num_node_features, nout, nhid, graph_hidden_channels, nlayers=3):
+        super(GATEncoder, self).__init__(num_node_features, nout, nhid, graph_hidden_channels)
+
+        self.layers = []
+        self.layers += [GATv2Conv(num_node_features, graph_hidden_channels)]
+        
+        for i in range(n_layers-1):
+            self.layers += [GATv2Conv(graph_hidden_channels, graph_hidden_channels)]
+
+
+    def forward(self, graph_batch):
+
+        x, edge_index, batch = self.get_batch(graph_batch)
+        for layer in self.layers:
+            x = layer(x, edge_index)
+            x = x.relu()
+
+        x = global_mean_pool(x,batch)
+        x = self.mlp(x)
+
+        return x
+
     
 class TextEncoder(nn.Module):
     def __init__(self, model_name):
@@ -46,7 +94,7 @@ class TextEncoder(nn.Module):
 class Model(nn.Module):
     def __init__(self, model_name, num_node_features, nout, nhid, graph_hidden_channels):
         super(Model, self).__init__()
-        self.graph_encoder = GraphEncoder(num_node_features, nout, nhid, graph_hidden_channels)
+        self.graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
         self.text_encoder = TextEncoder(model_name)
         
     def forward(self, graph_batch, input_ids, attention_mask):
