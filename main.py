@@ -18,6 +18,10 @@ def contrastive_loss(v1, v2):
 
 model_name = 'gpt2'
 tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+if (model_name == "gpt2"):
+    tokenizer.pad_token = tokenizer.eos_token
+
 gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
 val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
 train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
