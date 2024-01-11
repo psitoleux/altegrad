@@ -51,33 +51,6 @@ printEvery = 50
 best_validation_loss = 1000000
 
 for i in range(nb_epochs):
-    val_loss = 0
-    model.eval()
-    for batch in val_loader:
-        torch.cuda.empty_cache()        
-        input_ids = batch.input_ids
-        batch.pop('input_ids')
-        attention_mask = batch.attention_mask
-        batch.pop('attention_mask')
-        graph_batch = batch
-        x_graph, x_text = model(graph_batch.to(device), 
-                                input_ids.to(device), 
-                                attention_mask.to(device))
-        current_loss = contrastive_loss(x_graph, x_text)   
-        val_loss += current_loss.item()
-    best_validation_loss = min(best_validation_loss, val_loss)
-    print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', str(val_loss/len(val_loader)) )
-    if best_validation_loss==val_loss:
-        print('validation loss improoved saving checkpoint...')
-        save_path = os.path.join('./', 'model'+str(i)+'.pt')
-        torch.save({
-        'epoch': i,
-        'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict(),
-        'validation_accuracy': val_loss,
-        'loss': loss,
-        }, save_path)
-        print('checkpoint saved to: {}'.format(save_path))
     
     print('-----EPOCH{}-----'.format(i+1))
     model.train()
@@ -106,7 +79,34 @@ for i in range(nb_epochs):
             losses.append(loss)
             loss = 0 
 
-
+    val_loss = 0
+    model.eval()
+    for batch in val_loader:
+        torch.cuda.empty_cache()        
+        input_ids = batch.input_ids
+        batch.pop('input_ids')
+        attention_mask = batch.attention_mask
+        batch.pop('attention_mask')
+        graph_batch = batch
+        x_graph, x_text = model(graph_batch.to(device), 
+                                input_ids.to(device), 
+                                attention_mask.to(device))
+        current_loss = contrastive_loss(x_graph, x_text)   
+        val_loss += current_loss.item()
+    best_validation_loss = min(best_validation_loss, val_loss)
+    print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', str(val_loss/len(val_loader)) )
+    if best_validation_loss==val_loss:
+        print('validation loss improoved saving checkpoint...')
+        save_path = os.path.join('./', 'model'+str(i)+'.pt')
+        torch.save({
+        'epoch': i,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'validation_accuracy': val_loss,
+        'loss': loss,
+        }, save_path)
+        print('checkpoint saved to: {}'.format(save_path))
+        
 
 torch.cuda.empty_cache()
 print('loading best model...')
