@@ -30,7 +30,7 @@ class GraphEncoder(nn.Module):
         edge_index = graph_batch.edge_index
         batch = graph_batch.batch
 
-        return x, egde_index, batch
+        return x, edge_index, batch
 
 
 class GCNEncoder(GraphEncoder):
