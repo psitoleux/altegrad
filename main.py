@@ -16,9 +16,9 @@ def contrastive_loss(v1, v2):
   labels = torch.arange(logits.shape[0], device=v1.device)
   return CE(logits, labels) + CE(torch.transpose(logits, 0, 1), labels)
 
-model_name = 'llmrails/ember-v1'
+model_name = 'llmrails/ember-v1'; nout = 1024
 
-# scibert : 'allenai/scibert_scivocab_uncased'
+# scibert : model_name = 'allenai/scibert_scivocab_uncased'; nout = 768
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -35,7 +35,7 @@ learning_rate = 1e-5
 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
-model = Model(model_name=model_name, num_node_features=300, nout=768, nhid=300, graph_hidden_channels=300) # nout = bert model hidden dim
+model = Model(model_name=model_name, num_node_features=300, nout=nout, nhid=300, graph_hidden_channels=300) # nout = bert model hidden dim
 model.to(device)
 
 optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
