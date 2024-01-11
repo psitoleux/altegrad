@@ -1,4 +1,4 @@
-from dataloader import GraphTextDataset, GraphDataset, TextDataset
+from dataloader impo rt GraphTextDataset, GraphDataset, TextDataset
 from torch_geometric.data import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model
@@ -53,6 +53,7 @@ best_validation_loss = 1000000
 for i in range(nb_epochs):
     val_loss = 0     
     for batch in val_loader:
+        torch.cuda.empty_cache()        
         input_ids = batch.input_ids
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
@@ -80,6 +81,7 @@ for i in range(nb_epochs):
     print('-----EPOCH{}-----'.format(i+1))
     model.train()
     for batch in train_loader:
+        torch.cuda.empty_cache()
         input_ids = batch.input_ids
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
