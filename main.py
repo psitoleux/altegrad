@@ -16,9 +16,9 @@ def contrastive_loss(v1, v2):
   labels = torch.arange(logits.shape[0], device=v1.device)
   return CE(logits, labels) + CE(torch.transpose(logits, 0, 1), labels)
 
-model_name = 'llmrails/ember-v1'; nout = 1024
+model_name = 'llmrails/ember-v1'; nout = 1024 # ember
 
-# scibert : model_name = 'allenai/scibert_scivocab_uncased'; nout = 768
+#  model_name = 'allenai/scibert_scivocab_uncased'; nout = 768 # scibert
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -29,8 +29,8 @@ train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 nb_epochs = 5
-batch_size = 16
-learning_rate = 1e-5
+batch_size = 32
+learning_rate = 2e-5
 
 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -51,6 +51,7 @@ printEvery = 50
 best_validation_loss = 1000000
 
 for i in range(nb_epochs):
+    torch.cuda.empty_cache()
     print('-----EPOCH{}-----'.format(i+1))
     model.train()
     for batch in train_loader:
@@ -77,7 +78,8 @@ for i in range(nb_epochs):
             losses.append(loss)
             loss = 0 
     model.eval()       
-    val_loss = 0        
+    val_loss = 0 
+    torch.cuda.empty_cache()
     for batch in val_loader:
         input_ids = batch.input_ids
         batch.pop('input_ids')
@@ -104,6 +106,7 @@ for i in range(nb_epochs):
         print('checkpoint saved to: {}'.format(save_path))
 
 
+torch.cuda.empty_cache()
 print('loading best model...')
 checkpoint = torch.load(save_path)
 model.load_state_dict(checkpoint['model_state_dict'])
