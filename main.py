@@ -51,6 +51,7 @@ printEvery = 50
 best_validation_loss = 1000000
 
 for i in range(nb_epochs):
+    val_loss = 0     
     for batch in val_loader:
         input_ids = batch.input_ids
         batch.pop('input_ids')
@@ -102,7 +103,6 @@ for i in range(nb_epochs):
             losses.append(loss)
             loss = 0 
     model.eval()       
-    val_loss = 0 
 
 
 torch.cuda.empty_cache()
