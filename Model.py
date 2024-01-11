@@ -33,7 +33,7 @@ class GraphEncoder(nn.Module):
         return x, egde_index, batch
 
 
-class GCNEncoder(nn.Module):
+class GCNEncoder(GraphEncoder):
     def __init__(self, num_node_features, nout, nhid, graph_hidden_channels):
         super(GCNEncoder, self).__init__(num_node_features, nout, nhid, graph_hidden_channels)
 
@@ -57,7 +57,7 @@ class GCNEncoder(nn.Module):
         return x
 
 
-class GATEncoder(nn.Module):
+class GATEncoder(GraphEncoder):
     def __init__(self, num_node_features, nout, nhid, graph_hidden_channels, nlayers=3):
         super(GATEncoder, self).__init__(num_node_features, nout, nhid, graph_hidden_channels)
 
