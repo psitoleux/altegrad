@@ -100,6 +100,13 @@ for i in range(nb_epochs):
     if best_validation_loss==val_loss:
         print('validation loss improoved saving checkpoint...')
         save_path = os.path.join('./', 'model'+str(i)+'.pt')
+
+        dir_name = './'
+        files = os.listdir(dir_name)
+        for item in files:
+            if item.endswith(".pt"):
+                os.remove(os.path.join(dir_name, item))
+
         torch.save({
         'epoch': i,
         'model_state_dict': model.state_dict(),
