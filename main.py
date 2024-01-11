@@ -16,7 +16,9 @@ def contrastive_loss(v1, v2):
   labels = torch.arange(logits.shape[0], device=v1.device)
   return CE(logits, labels) + CE(torch.transpose(logits, 0, 1), labels)
 
-model_name = 'allenai/scibert_scivocab_uncased'
+model_name = 'llmrails/ember-v1'
+
+# scibert : 'allenai/scibert_scivocab_uncased'
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
