@@ -9,6 +9,7 @@ from torch import optim
 import time
 import os
 import pandas as pd
+import gc
 
 CE = torch.nn.CrossEntropyLoss()
 def contrastive_loss(v1, v2):
@@ -19,7 +20,7 @@ def contrastive_loss(v1, v2):
 model_name = 'llmrails/ember-v1'; nout = 1024 # ember
 
 #  model_name = 'allenai/scibert_scivocab_uncased'; nout = 768 # scibert
-
+# model_name =  'WhereIsAI/UAE-Large-V1'; nout = 1024 # UAE-Large
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
@@ -56,6 +57,7 @@ for i in range(nb_epochs):
     model.train()
     for batch in train_loader:
         torch.cuda.empty_cache()
+        gc.collect()
         input_ids = batch.input_ids
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
