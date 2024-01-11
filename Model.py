@@ -35,7 +35,7 @@ class GraphEncoder(nn.Module):
 
 class GCNEncoder(GraphEncoder):
     def __init__(self, num_node_features, nout, nhid, graph_hidden_channels):
-        super(GCNEncoder, self).__init__(num_node_features, nout, nhid, graph_hidden_channels)
+        GraphEncoder.__init__(num_node_features, nout, nhid, graph_hidden_channels)
 
         self.conv1 = GCNConv(num_node_features, graph_hidden_channels)
         self.conv2 = GCNConv(graph_hidden_channels, graph_hidden_channels)
@@ -57,9 +57,10 @@ class GCNEncoder(GraphEncoder):
         return x
 
 
-class GATEncoder(GraphEncoder):
-    def __init__(self, num_node_features, nout, nhid, graph_hidden_channels, nlayers=3):
-        super(GATEncoder, self).__init__(num_node_features, nout, nhid, graph_hidden_channels)
+class GATEncoder(Gra phEncoder):
+    def __init__ (self, num_node_features, nout, nhid, graph_hidden_channels, nlayers=3):
+        GraphEncoder.__init__(num_node_features, nout, nhid, graph_hidden_channels)
+        
 
         self.layers = []
         self.layers += [GATv2Conv(num_node_features, graph_hidden_channels)]
