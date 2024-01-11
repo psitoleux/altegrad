@@ -66,6 +66,8 @@ class GATEncoder(GraphEncoder):
         
         for i in range(n_layers-1):
             self.layers += [GATv2Conv(graph_hidden_channels, graph_hidden_channels).to(device)]
+        
+        self.layers = nn.ModuleList(self.layers)
 
     def forward(self, graph_batch):
 
