@@ -134,10 +134,6 @@ class GraphTextLabelDataset(GraphTextDataset):
             
             i += 1
 
-
-            
-
-
 class GraphDataset(Dataset):
     def __init__(self, root, gt, split, transform=None, pre_transform=None):
         self.root = root
