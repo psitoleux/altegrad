@@ -12,6 +12,7 @@ from dataloader import GraphTextDataset
 class LabelDataset(GraphTextDataset):
 
     def __init__(self, root, gt, split, tokenizer=None, transform=None, pre_transform=None):
+        # Weird error test
         super(LabelDataset, self).__init__(root, gt, split, tokenizer, transform, pre_transform)
         
     def process(self):
