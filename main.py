@@ -36,7 +36,7 @@ nb_epochs = 5
 batch_size = 8
 learning_rate = 1e-5 / 2
 
-val_loader = DataLoader(val_dataset, batch_size=batch_size // 2, shuffle=True)
+val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
 model = Model(model_name=model_name, num_node_features=300, nout=nout, nhid=300, graph_hidden_channels=300) # nout = bert model hidden dim
