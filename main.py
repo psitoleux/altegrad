@@ -51,7 +51,23 @@ time1 = time.time()
 printEvery = 50
 best_validation_loss = 1000000
 
-for i in range(nb_epochs):
+dir_name = './'
+files = os.listdir(dir_name)
+chkpt = []
+for item in files:
+    if item.endswith(".pt"):
+        chkpt += [os.path.join(dir_name, item)]
+chkpt = sorted(chkpt)
+
+if len(chkpt) != 0:
+  checkpoint = torch.load(chkpt[-1])
+  model.load_state_dict(checkpoint['model_state_dict'])
+  optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+  epoch = checkpoint['epoch']
+  loss = checkpoint['loss']
+
+
+for i in range(epoch, nb_epochs):
     
     print('-----EPOCH{}-----'.format(i+1))
     model.train()
@@ -84,7 +100,8 @@ for i in range(nb_epochs):
     val_loss = 0
     model.eval()
     for batch in val_loader:
-        torch.cuda.empty_cache()        
+        torch.cuda.empty_cache()
+        gc.collect()
         input_ids = batch.input_ids
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
@@ -118,6 +135,7 @@ for i in range(nb_epochs):
         
 
 torch.cuda.empty_cache()
+gc.collect()
 print('loading best model...')
 checkpoint = torch.load(save_path)
 model.load_state_dict(checkpoint['model_state_dict'])
