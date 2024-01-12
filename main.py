@@ -11,6 +11,9 @@ import os
 import pandas as pd
 import gc
 
+torch.cuda.empty_cache()
+gc.collect()
+
 CE = torch.nn.CrossEntropyLoss()
 def contrastive_loss(v1, v2):
   logits = torch.matmul(v1,torch.transpose(v2, 0, 1))
