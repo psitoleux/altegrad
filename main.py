@@ -1,4 +1,5 @@
-from dataloader import GraphTextDataset, GraphDataset, TextDataset, GraphTextLabelDataset
+from dataloader import GraphTextDataset, GraphDataset, TextDataset
+from dataloader import LabelDataset
 from torch_geometric.data import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model
@@ -35,8 +36,8 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
 
-val_dataset = GraphTextLabelDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
-train_dataset = GraphTextLabelDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
+val_dataset = LabelDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
+train_dataset = LabelDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
 #val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
 #train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
