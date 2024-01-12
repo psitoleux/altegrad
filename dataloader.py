@@ -89,7 +89,7 @@ class GraphTextDataset(Dataset):
         data = torch.load(osp.join(self.processed_dir, 'data_{}.pt'.format(cid)))
         return data
     
-class GraphTextLabelDateset(GraphTextDataset):
+class GraphTextLabelDataset(GraphTextDataset):
 
     def __init__(self, root, gt, split, tokenizer=None, transform=None, pre_transform=None):
         GraphTextDataset.__init__(self, root, gt, split, tokenizer, transform, pre_transform)
