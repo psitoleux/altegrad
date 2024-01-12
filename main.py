@@ -1,5 +1,5 @@
 from dataloader import GraphTextDataset, GraphDataset, TextDataset
-from dataloader import LabelDataset
+from dataloader_2 import LabelDataset
 from torch_geometric.data import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model
