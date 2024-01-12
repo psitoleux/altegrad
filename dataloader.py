@@ -28,7 +28,7 @@ class GraphTextDataset(Dataset):
         return [str(cid) + ".graph" for cid in self.cids]
 
     @property
-    def processed_file_ names(self):
+    def processed_file_names(self):
         return ['data_{}.pt'.format(cid) for cid in self.cids]
     
     @property
