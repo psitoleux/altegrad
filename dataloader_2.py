@@ -12,7 +12,7 @@ from dataloader import GraphTextDataset
 class LabelDataset(GraphTextDataset):
 
     def __init__(self, root, gt, split, tokenizer=None, transform=None, pre_transform=None):
-        super(GraphTextLabelDataset, self).__init__(root, gt, split, tokenizer, transform, pre_transform)
+        super(LabelDataset, self).__init__(root, gt, split, tokenizer, transform, pre_transform)
         
     def process(self):
         i = 0        
