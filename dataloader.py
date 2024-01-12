@@ -92,18 +92,8 @@ class GraphTextDataset(Dataset):
 class GraphTextLabelDataset(GraphTextDataset):
 
     def __init__(self, root, gt, split, tokenizer=None, transform=None, pre_transform=None):
-        GraphTextDataset.__init__(self, root, gt, split, tokenizer, transform, pre_transform)
-
-        false_examples_idx = []
-        L = len(self.cids)
-        for i in range(L):
-            j = np.random.choice(L)
-            while (j == i):
-                j = np.random.choice(L)
-
-            false_examples_idx += [j]
-
-   
+        super(GraphTextLabelDataset, self).__init__(root, gt, split, tokenizer, transform, pre_transform)
+        
     def process(self):
         i = 0        
         for raw_path in self.raw_paths:
@@ -142,6 +132,7 @@ class GraphTextLabelDataset(GraphTextDataset):
             torch.save(data, osp.join(self.processed_dir, 'data_false{}.pt'.format(cid)))
             
             i += 1
+
 
             
 
