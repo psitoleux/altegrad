@@ -1,4 +1,4 @@
-from dataloader import Graph TextDataset, GraphDataset, TextDataset, GraphTextLabelDataset
+from dataloader import GraphTextDataset, GraphDataset, TextDataset, GraphTextLabelDataset
 from torch_geometric.data import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model
