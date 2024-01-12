@@ -1,4 +1,4 @@
-import os
+import os 
 import os.path as osp
 import torch
 from torch_geometric.data import Dataset 
@@ -24,22 +24,22 @@ class GraphTextDataset(Dataset):
         super(GraphTextDataset, self).__init__(root, transform, pre_transform)
 
     @property
-    def raw_file_names(self):
+    def raw_file_names (self):
         return [str(cid) + ".graph" for cid in self.cids]
 
     @property
-    def processed_file_names(self):
+    def processed_file_ names(self):
         return ['data_{}.pt'.format(cid) for cid in self.cids]
     
     @property
-    def raw_dir(self) -> str:
+    def raw_dir(self)  -> str:
         return osp.join(self.root, 'raw')
 
     @property
-    def processed_dir(self) -> str:
+    def processed_dir( self) -> str:
         return osp.join(self.root, 'processed/', self.split)
 
-    def download(self):
+    def download(self) :
         pass
         
     def process_graph(self, raw_path):
@@ -62,7 +62,7 @@ class GraphTextDataset(Dataset):
             x.append(self.gt['UNK'])
         return torch.LongTensor(edge_index).T, torch.FloatTensor(x)
 
-    def process(self):
+    def process(self): 
         i = 0        
         for raw_path in self.raw_paths:
             cid = int(raw_path.split('/')[-1][:-6])
@@ -78,18 +78,74 @@ class GraphTextDataset(Dataset):
             torch.save(data, osp.join(self.processed_dir, 'data_{}.pt'.format(cid)))
             i += 1
 
-    def len(self):
+    def len(self): 
         return len(self.processed_file_names)
 
-    def get(self, idx):
+    def get(self, idx): 
         data = torch.load(osp.join(self.processed_dir, 'data_{}.pt'.format(self.idx_to_cid[idx])))
         return data
 
-    def get_cid(self, cid):
+    def get_cid(self, cid): 
         data = torch.load(osp.join(self.processed_dir, 'data_{}.pt'.format(cid)))
         return data
     
-    
+class GraphTextLabelDateset(GraphTextDataset):
+
+    def __init__(self, root, gt, split, tokenizer=None, transform=None, pre_transform=None):
+        GraphTextDataset.__init__(self, root, gt, split, tokenizer, transform, pre_transform)
+
+        false_examples_idx = []
+        L = len(self.cids)
+        for i in range(L):
+            j = np.random.choice(L)
+            while (j == i):
+                j = np.random.choice(L)
+
+            false_examples_idx += [j]
+
+   
+    def process(self):
+        i = 0        
+        for raw_path in self.raw_paths:
+            cid = int(raw_path.split('/')[-1][:-6])                
+            
+            text_input = self.tokenizer([self.description[1][cid]],
+                                   return_tensors="pt", 
+                                   truncation=True, 
+                                   max_length=256,
+                                   padding="max_length",
+                                   add_special_tokens=True,)
+            edge_index, x = self.process_graph(raw_path)
+        
+
+            data = Data(x=x, y = 1, edge_index=edge_index, input_ids=text_input['input_ids'], attention_mask=text_input['attention_mask'])
+
+            torch.save(data, osp.join(self.processed_dir, 'data_{}.pt'.format(cid)))
+            i += 1
+            
+            k = np.random.randint(len(self.raw_paths))
+            while cid == self.raw_paths[k]:
+                k = np.random.randint(len(self.raw_paths))
+            
+            raw_path_desc = self.raw_paths[k]
+            cid_desc = int(raw_path_desc.split('/')[-1][:-6])
+            
+            text_input = self.tokenizer([self.description[1][cid_desc]],
+                       return_tensors="pt", 
+                       truncation=True, 
+                       max_length=256,
+                       padding="max_length",
+                       add_special_tokens=True,)
+        
+            data = Data(x=x, y = 0, edge_index=edge_index, input_ids=text_input['input_ids'], attention_mask=text_input['attention_mask'])
+
+            torch.save(data, osp.join(self.processed_dir, 'data_false{}.pt'.format(cid)))
+            
+            i += 1
+
+            
+
+
 class GraphDataset(Dataset):
     def __init__(self, root, gt, split, transform=None, pre_transform=None):
         self.root = root
