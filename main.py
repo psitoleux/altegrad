@@ -1,4 +1,4 @@
-from dataloader import GraphTextDataset, GraphDataset, TextDataset
+from dataloader import Graph TextDataset, GraphDataset, TextDataset, GraphTextLabelDataset
 from torch_geometric.data import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model
@@ -27,21 +27,25 @@ def negative_sampling_contrastive_loss(v1, v2, labels):
   eye = torch.diag_embed(labels).to(v1.device)
   return BCEL(logits, eye) + BCEL(torch.transpose(logits, 0, 1), eye), logits.diag() > 0
 
-model_name = 'llmrails/ember-v1'; nout = 1024 # ember
+#model_name = 'llmrails/ember-v1'; nout = 1024 # ember
 
-#  model_name = 'allenai/scibert_scivocab_uncased'; nout = 768 # scibert
+model_name = 'allenai/scibert_scivocab_uncased'; nout = 768 # scibert
 # model_name =  'WhereIsAI/UAE-Large-V1'; nout = 1024 # UAE-Large
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
-val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
-train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
+
+val_dataset = GraphTextLabelDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
+train_dataset = GraphTextLabelDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
+
+#val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
+#train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-nb_epochs = 5
-batch_size = 8
-learning_rate = 1e-5 / 2
+nb_epochs = 10
+batch_size = 32
+learning_rate = 2e-5
 
 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -88,12 +92,15 @@ for i in range(epoch, nb_epochs):
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
         batch.pop('attention_mask')
+        y = batch.y
+        batch.pop('y')
+
         graph_batch = batch
         
         x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-        current_loss = contrastive_loss(x_graph, x_text)   
+        current_loss = negative_sampling_contrastive_loss(x_graph, x_text,y)   
         optimizer.zero_grad()
         current_loss.backward()
         optimizer.step()
@@ -116,11 +123,15 @@ for i in range(epoch, nb_epochs):
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
         batch.pop('attention_mask')
+        y = batch.y
+        batch.pop('y')
+
         graph_batch = batch
+
         x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-        current_loss = contrastive_loss(x_graph, x_text)   
+        current_loss = negative_sampling_contrastive_loss(x_graph, x_text, y)   
         val_loss += current_loss.item()
     best_validation_loss = min(best_validation_loss, val_loss)
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', str(val_loss/len(val_loader)) )
