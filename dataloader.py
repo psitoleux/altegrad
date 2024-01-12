@@ -5,6 +5,7 @@ from torch_geometric.data import Dataset
 from torch_geometric.data import Data
 from torch.utils.data import Dataset as TorchDataset
 import pandas as pd
+import numpy as np
 
 class GraphTextDataset(Dataset):
     def __init__(self, root, gt, split, tokenizer=None, transform=None, pre_transform=None):
@@ -88,7 +89,7 @@ class GraphTextDataset(Dataset):
     def get_cid(self, cid): 
         data = torch.load(osp.join(self.processed_dir, 'data_{}.pt'.format(cid)))
         return data
-    
+
 class GraphTextLabelDataset(GraphTextDataset):
 
     def __init__(self, root, gt, split, tokenizer=None, transform=None, pre_transform=None):
