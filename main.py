@@ -101,7 +101,7 @@ for i in range(epoch, nb_epochs):
         x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-        current_loss = negative_sampling_contrastive_loss(x_graph, x_text,y)   
+        current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text,y)   
         optimizer.zero_grad()
         current_loss.backward()
         optimizer.step()
@@ -132,7 +132,7 @@ for i in range(epoch, nb_epochs):
         x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-        current_loss = negative_sampling_contrastive_loss(x_graph, x_text, y)   
+        current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y)   
         val_loss += current_loss.item()
     best_validation_loss = min(best_validation_loss, val_loss)
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', str(val_loss/len(val_loader)) )
