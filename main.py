@@ -93,11 +93,10 @@ for i in range(epoch, nb_epochs):
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
         batch.pop('attention_mask')
-        y = batch.y
+        y = torch.LongTensor(batch.y)
         batch.pop('y')
 
         graph_batch = batch
-        print(y)
         x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
@@ -124,7 +123,7 @@ for i in range(epoch, nb_epochs):
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
         batch.pop('attention_mask')
-        y = batch.y
+        y = torch.LongTensor(batch.y)
         batch.pop('y')
 
         graph_batch = batch
