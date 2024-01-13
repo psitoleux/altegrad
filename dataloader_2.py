@@ -7,7 +7,7 @@ from torch.utils.data import Dataset as TorchDataset
 import pandas as pd
 import numpy as np
 from dataloader import GraphTextDataset
-
+from tqdm.auto import tqdm
 
 class LabelDataset(GraphTextDataset):
 
@@ -17,7 +17,7 @@ class LabelDataset(GraphTextDataset):
         
     def process(self):
         i = 0        
-        for raw_path in self.raw_paths:
+        for raw_path in tqdm(self.raw_paths):
             cid = int(raw_path.split('/')[-1][:-6])                
             
             text_input = self.tokenizer([self.description[1][cid]],
