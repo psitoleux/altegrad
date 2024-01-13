@@ -93,7 +93,7 @@ for i in range(epoch, nb_epochs):
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
         batch.pop('attention_mask')
-        y = torch.LongTensor(batch.y)
+        y = torch.FloatTensor(batch.y)
         batch.pop('y')
 
         graph_batch = batch
@@ -123,7 +123,7 @@ for i in range(epoch, nb_epochs):
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
         batch.pop('attention_mask')
-        y = torch.LongTensor(batch.y)
+        y = torch.FloatTensor(batch.y)
         batch.pop('y')
 
         graph_batch = batch
