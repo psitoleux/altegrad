@@ -84,7 +84,7 @@ class LabelDataset(Dataset):
 
     def process(self): 
         i = 0        
-        for j,raw_path in enumerate(self.raw_paths):
+        for j,raw_path in tqdm(enumerate(self.raw_paths)):
             cid = int(raw_path.split('/')[-1][:-6])
             text_input = self.tokenizer([self.description[1][cid]],
                                    return_tensors="pt", 
