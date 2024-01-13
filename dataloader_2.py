@@ -25,9 +25,8 @@ class LabelDataset(Dataset):
                 j = np.random.randint(len(df))
                 while (j == i):
                     j = np.random.randint(len(df))
-            
-            df_new.loc[i,1] = df.loc[j,1]
-            df_new.loc[i,2] = 0
+                df_new.loc[i,1] = df.loc[j,1]
+                df_new.loc[i,2] = 0
         
 
 
