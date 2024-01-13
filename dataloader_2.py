@@ -33,7 +33,7 @@ class LabelDataset(Dataset):
         self.labels = df_new[2]
         df_new = df_new.drop(2, axis = 'columns')
 
-        self.description = self.description.set_index(0).to_dict()
+        self.description = df_new.set_index(0).to_dict()
         self.cids = list(self.description[1].keys())
         
         self.idx_to_cid = {}
