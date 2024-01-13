@@ -95,7 +95,7 @@ class LabelDataset(Dataset):
                                    add_special_tokens=True,)
             edge_index, x = self.process_graph(raw_path)
             y = self.labels[j]
-            data = Data(x=x, y=y edge_index=edge_index, input_ids=text_input['input_ids'], attention_mask=text_input['attention_mask'])
+            data = Data(x=x, y=y, edge_index=edge_index, input_ids=text_input['input_ids'], attention_mask=text_input['attention_mask'])
 
             torch.save(data, osp.join(self.processed_dir, 'data_{}.pt'.format(cid)))
             i += 1
