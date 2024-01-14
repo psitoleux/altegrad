@@ -46,7 +46,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 nb_epochs = 7
 batch_size = 16
-learning_rate = 1e-5
+learning_rate = 2e-5
 
 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -65,6 +65,8 @@ count_iter = 0
 time1 = time.time()
 printEvery = 50
 best_validation_loss = 1000000
+
+accumulation_steps = 2
 
 dir_name = './'
 files = os.listdir(dir_name)
@@ -86,7 +88,7 @@ for i in range(epoch, nb_epochs):
     
     print('-----EPOCH{}-----'.format(i+1))
     model.train()
-    for batch in train_loader:
+    for i,batch in enumerate(train_loader):
         torch.cuda.empty_cache()
         gc.collect()
         input_ids = batch.input_ids
@@ -105,8 +107,13 @@ for i in range(epoch, nb_epochs):
         current_loss.backward()
         optimizer.step()
         loss += current_loss.item()
-        
+
         count_iter += 1
+        
+
+        if count_iter % accumulation_steps == 0:
+            optimizer.step()
+
         if count_iter % printEvery == 0:
             time2 = time.time()
             print("Iteration: {0}, Time: {1:.4f} s, training loss: {2:.4f}".format(count_iter,
