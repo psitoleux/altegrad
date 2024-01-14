@@ -44,9 +44,9 @@ train_dataset = LabelDataset(root='./data/', gt=gt, split='train', tokenizer=tok
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-nb_epochs = 10
-batch_size = 16
-learning_rate = 1e-5
+nb_epochs = 5
+batch_size = 32
+learning_rate = 2e-5
 
 val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -131,7 +131,7 @@ for i in range(epoch, nb_epochs):
         x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-        current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y)   
+        current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y.float())   
         val_loss += current_loss.item()
     best_validation_loss = min(best_validation_loss, val_loss)
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', str(val_loss/len(val_loader)) )
