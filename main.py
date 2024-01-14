@@ -88,7 +88,7 @@ for i in range(epoch, nb_epochs):
     
     print('-----EPOCH{}-----'.format(i+1))
     model.train()
-    for i,batch in enumerate(train_loader):
+    for batch in train_loader:
         torch.cuda.empty_cache()
         gc.collect()
         input_ids = batch.input_ids
