@@ -48,12 +48,15 @@ nb_epochs = 7
 batch_size = 16
 learning_rate = 2e-5
 
-val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+
+val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
+
 
 model = Model(model_name=model_name, num_node_features=300, nout=nout, nhid=300, graph_hidden_channels=300) # nout = bert model hidden dim
 model.to(device)
 
+scaler = torch.cuda.amp.GradScaler()
 optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01)
@@ -84,9 +87,11 @@ if len(chkpt) != 0:
   loss = checkpoint['loss']
 
 
+
 for i in range(epoch, nb_epochs):
     
     print('-----EPOCH{}-----'.format(i+1))
+    optimizer.zero_grad(set_to_none=True)
     model.train()
     for batch in train_loader:
         torch.cuda.empty_cache()
@@ -99,20 +104,26 @@ for i in range(epoch, nb_epochs):
         batch.pop('y')
 
         graph_batch = batch
-        x_graph, x_text = model(graph_batch.to(device), 
+
+
+        with torch.cuda.amp.autocast():
+            x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-        current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text,y.float())   
-        optimizer.zero_grad()
-        current_loss.backward()
-        optimizer.step()
+            current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text,y.float())   
+
+        scaler.scale(current_loss).backward()
         loss += current_loss.item()
+
+        
 
         count_iter += 1
         
 
         if count_iter % accumulation_steps == 0:
-            optimizer.step()
+            scaeler.step(optimizer)
+            optimizer.zero_grad(set_to_none=True)
+            scaler.update()
 
         if count_iter % printEvery == 0:
             time2 = time.time()
