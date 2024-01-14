@@ -121,7 +121,7 @@ for i in range(epoch, nb_epochs):
         
 
         if count_iter % accumulation_steps == 0:
-            scaeler.step(optimizer)
+            scaler.step(optimizer)
             optimizer.zero_grad(set_to_none=True)
             scaler.update()
 
