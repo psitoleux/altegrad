@@ -100,7 +100,7 @@ for i in range(epoch, nb_epochs):
         x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-        current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text,y)   
+        current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text,y.float())   
         optimizer.zero_grad()
         current_loss.backward()
         optimizer.step()
