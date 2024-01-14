@@ -69,7 +69,7 @@ time1 = time.time()
 printEvery = 50
 best_validation_loss = 1000000
 
-accumulation_steps = 2
+accumulation_steps = 1
 
 dir_name = './'
 files = os.listdir(dir_name)
