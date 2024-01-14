@@ -45,7 +45,8 @@ train_dataset = LabelDataset(root='./data/', gt=gt, split='train', tokenizer=tok
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 nb_epochs = 5
-batch_size = 32
+target_batch_size, batch_size = 32, 16
+accumulation_steps = target_batch_size // batch_size
 learning_rate = 2e-5
 
 
@@ -60,7 +61,7 @@ scaler = torch.cuda.amp.GradScaler()
 optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01)
-scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*10,total_steps=nb_epochs* len(train_loader))
+scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*5,total_steps=nb_epochs* len(train_loader))
 
 epoch = 0
 loss = 0
@@ -70,7 +71,6 @@ time1 = time.time()
 printEvery = 50
 best_validation_loss = 1000000
 
-accumulation_steps = 1
 
 dir_name = './'
 files = os.listdir(dir_name)
@@ -115,8 +115,6 @@ for i in range(epoch, nb_epochs):
 
         scaler.scale(current_loss).backward()
         loss += current_loss.item()
-
-        
 
         count_iter += 1
         
