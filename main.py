@@ -44,8 +44,8 @@ train_dataset = LabelDataset(root='./data/', gt=gt, split='train', tokenizer=tok
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-nb_epochs = 7
-batch_size = 16
+nb_epochs = 5
+batch_size = 32
 learning_rate = 2e-5
 
 
