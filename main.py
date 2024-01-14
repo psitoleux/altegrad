@@ -60,6 +60,7 @@ scaler = torch.cuda.amp.GradScaler()
 optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01)
+scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=lr*10,total_steps=nb_epochs* len(train_loader))
 
 epoch = 0
 loss = 0
