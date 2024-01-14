@@ -30,7 +30,7 @@ class LabelDataset(Dataset):
         
 
 
-        self.labels = df_new[2]
+        self.labels = df_new[2].to_numpy()
         df_new = df_new.drop(2, axis = 'columns')
 
         self.description = df_new.set_index(0).to_dict()
@@ -93,7 +93,11 @@ class LabelDataset(Dataset):
                                    padding="max_length",
                                    add_special_tokens=True,)
             edge_index, x = self.process_graph(raw_path)
-            y = torch.LongTensor(self.labels[j])
+
+
+            y = torch.from_numpy(np.array(self.labels[j]))
+
+
             data = Data(x=x, y=y, edge_index=edge_index, input_ids=text_input['input_ids'], attention_mask=text_input['attention_mask'])
 
             torch.save(data, osp.join(self.processed_dir, 'data_{}.pt'.format(cid)))
