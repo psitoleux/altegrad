@@ -50,7 +50,7 @@ train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-nb_epochs = 5
+nb_epochs = 12
 target_batch_size, batch_size = 32, 32
 accumulation_steps = target_batch_size // batch_size
 learning_rate = 2e-5
@@ -96,7 +96,7 @@ if len(chkpt) != 0:
 
 
 for i in range(epoch, nb_epochs):
-    
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
     print('-----EPOCH{}-----'.format(i+1))
     optimizer.zero_grad(set_to_none=True)
     model.train()
