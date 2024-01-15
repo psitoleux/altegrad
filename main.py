@@ -1,5 +1,6 @@
 from dataloader import GraphTextDataset, GraphDataset, TextDataset
 from dataloader_2 import LabelDataset
+from info_nce import InfoNCE
 from torch_geometric.data import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model
@@ -28,6 +29,11 @@ def negative_sampling_contrastive_loss(v1, v2, labels):
   eye = torch.diag_embed(labels).to(v1.device)
   return BCEL(logits, eye) + BCEL(torch.transpose(logits, 0, 1), eye), logits.diag() > 0
 
+
+INCE = InfoNCE()
+def InfoNCE_loss(v1,v2):
+    return INCE(v1,v2)+INCE(v2,v1)
+
 #model_name = 'llmrails/ember-v1'; nout = 1024 # ember
 
 model_name = 'allenai/scibert_scivocab_uncased'; nout = 768 # scibert
@@ -36,11 +42,11 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
 
-val_dataset = LabelDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
-train_dataset = LabelDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
+#val_dataset = LabelDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
+#train_dataset = LabelDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
-#val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
-#train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
+val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
+train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -101,8 +107,8 @@ for i in range(epoch, nb_epochs):
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
         batch.pop('attention_mask')
-        y = batch.y#torch.FloatTensor(batch.y)
-        batch.pop('y')
+        #y = batch.y#torch.FloatTensor(batch.y)
+        #batch.pop('y')
 
         graph_batch = batch
 
@@ -111,7 +117,8 @@ for i in range(epoch, nb_epochs):
             x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-            current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text,y.float())   
+            current_loss = InfoNCE_loss(x_graph, x_text)
+            #current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text,y.float())   
 
         scaler.scale(current_loss).backward()
         loss += current_loss.item()
@@ -140,15 +147,17 @@ for i in range(epoch, nb_epochs):
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
         batch.pop('attention_mask')
-        y = batch.y #torch.FloatTensor(batch.y)
-        batch.pop('y')
+        #y = batch.y #torch.FloatTensor(batch.y)
+        #batch.pop('y')
 
         graph_batch = batch
         with torch.no_grad():
             x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-            current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y.float())   
+            current_loss = InfoNCE_loss(x_graph, x_text)
+            
+            #current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y.float())   
             val_loss += current_loss.item()
     best_validation_loss = min(best_validation_loss, val_loss)
 
