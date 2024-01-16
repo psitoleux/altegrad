@@ -18,3 +18,4 @@ def get_parser():
     parser.add_argument('--nhid', type=int, default=300)
     parser.add_argument('--graph_hidden_channels', type=int, default=300)
     
+    return parser

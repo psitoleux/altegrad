@@ -1,6 +1,6 @@
 from dataloader import GraphTextDataset, GraphDataset, TextDataset
 from dataloader_2 import LabelDataset
-from info_nce import InfoNCE
+from loss import contrastive_loss, negative_sampling_contrastive_loss, info_nce_loss
 from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model
@@ -125,7 +125,7 @@ for i in range(epoch, epoch+nb_epochs):
             x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-            current_loss = InfoNCE_loss(x_graph, x_text)
+            current_loss = info_nce_loss(x_graph, x_text)
             #current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text,y.float())   
 
         scaler.scale(current_loss).backward()
@@ -163,7 +163,7 @@ for i in range(epoch, epoch+nb_epochs):
             x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-            current_loss = InfoNCE_loss(x_graph, x_text)
+            current_loss = info_nce_loss(x_graph, x_text)
             
             #current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y.float())   
             val_loss += current_loss.item()
