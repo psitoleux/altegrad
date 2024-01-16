@@ -52,19 +52,25 @@ train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 nb_epochs = 12
-target_batch_size, batch_size = 32, 16
+target_batch_size, batch_size = 32, 16 # target_batch_size : effective batch after accumulation steps
 accumulation_steps = target_batch_size // batch_size
 learning_rate = 2e-5
+val_stop = 2
 
 
-val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
-train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
+val_loader = DataLoader(val_dataset, batch_size=batch_size # num_workers = 4 + pin_memory = True supposed to speed up things
+                        , shuffle=True, num_workers = 4, pin_memory=True)
+train_loader = DataLoader(train_dataset, batch_size=batch_size
+                          , shuffle=True, num_workers = 4, pin_memory=True)
 
 
-model = Model(model_name=model_name, num_node_features=300, nout=nout, nhid=300, graph_hidden_channels=300) # nout = bert model hidden dim
+
+model = Model(model_name=model_name, num_node_features=300, nout=nout, nhid=300, graph_hidden_channels=300) # nout = model hidden dim
 model.to(device)
+total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+print('Number of trainable parameters in the model: ', total_params) 
 
-scaler = torch.cuda.amp.GradScaler()
+scaler = torch.cuda.amp.GradScaler() #scaler : needed for AMP training
 optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01)
@@ -114,7 +120,7 @@ for i in range(epoch, nb_epochs):
         graph_batch = batch
 
 
-        with torch.cuda.amp.autocast():
+        with torch.cuda.amp.autocast(): # mixed precision 
             x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
@@ -184,7 +190,7 @@ for i in range(epoch, nb_epochs):
         j = 0
     else:
         j += 1
-    if j == 2:
+    if j == val_stop: # if val loss doesn't improve after val_stop epochs, stop training
         break
 
         
