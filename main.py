@@ -34,10 +34,11 @@ INCE = InfoNCE()
 def InfoNCE_loss(v1,v2):
     return INCE(v1,v2)+INCE(v2,v1)
 
+
+#model_name = 'allenai/scibert_scivocab_uncased'; nout = 768 # scibert
+model_name =  'WhereIsAI/UAE-Large-V1'; nout = 1024 # UAE-Large
 #model_name = 'llmrails/ember-v1'; nout = 1024 # ember
 
-model_name = 'allenai/scibert_scivocab_uncased'; nout = 768 # scibert
-# model_name =  'WhereIsAI/UAE-Large-V1'; nout = 1024 # UAE-Large
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
@@ -180,6 +181,12 @@ for i in range(epoch, nb_epochs):
         'loss': loss,
         }, save_path)
         print('checkpoint saved to: {}'.format(save_path))
+        j = 0
+    else:
+        j += 1
+    if j == 2:
+        break
+
         
 
 torch.cuda.empty_cache()
@@ -189,27 +196,32 @@ checkpoint = torch.load(save_path)
 model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()
 
-graph_model = model.get_graph_encoder()
-text_model = model.get_text_encoder()
 
-test_cids_dataset = GraphDataset(root='./data/', gt=gt, split='test_cids')
-test_text_dataset = TextDataset(file_path='./data/test_text.txt', tokenizer=tokenizer)
+with torch.no_grad():
 
-idx_to_cid = test_cids_dataset.get_idx_to_cid()
+    graph_model = model.get_graph_encoder()
+    text_model = model.get_text_encoder()
 
-test_loader = DataLoader(test_cids_dataset, batch_size=batch_size, shuffle=False)
+    test_cids_dataset = GraphDataset(root='./data/', gt=gt, split='test_cids')
+    test_text_dataset = TextDataset(file_path='./data/test_text.txt', tokenizer=tokenizer)
 
-graph_embeddings = []
-for batch in test_loader:
-    for output in graph_model(batch.to(device)):
-        graph_embeddings.append(output.tolist())
+    idx_to_cid = test_cids_dataset.get_idx_to_cid()
 
-test_text_loader = TorchDataLoader(test_text_dataset, batch_size=batch_size, shuffle=False)
-text_embeddings = []
-for batch in test_text_loader:
-    for output in text_model(batch['input_ids'].to(device), 
+    test_loader = DataLoader(test_cids_dataset, batch_size=batch_size, shuffle=False)
+
+
+
+    graph_embeddings = []
+    for batch in test_loader:
+        for output in graph_model(batch.to(device)):
+            graph_embeddings.append(output.tolist())
+
+    test_text_loader = TorchDataLoader(test_text_dataset, batch_size=batch_size, shuffle=False)
+    text_embeddings = []
+    for batch in test_text_loader:
+        for output in text_model(batch['input_ids'].to(device), 
                              attention_mask=batch['attention_mask'].to(device)):
-        text_embeddings.append(output.tolist())
+            text_embeddings.append(output.tolist())
 
 
 from sklearn.metrics.pairwise import cosine_similarity
