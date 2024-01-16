@@ -94,11 +94,13 @@ for item in files:
 chkpt = sorted(chkpt)
 
 if len(chkpt) != 0:
+  print('loading checkpoint...')
   checkpoint = torch.load(chkpt[-1])
   model.load_state_dict(checkpoint['model_state_dict'])
   optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
   epoch = checkpoint['epoch']
   loss = checkpoint['loss']
+  print('Done!')
 
 
 
