@@ -82,7 +82,7 @@ count_iter = 0
 time1 = time.time()
 printEvery = 50
 best_validation_loss = 1000000
-
+epoch = 0
 
 dir_name = './'
 files = os.listdir(dir_name)
@@ -103,7 +103,7 @@ if len(chkpt) != 0:
 
 
 
-for i in range(epoch+1, epoch+nb_epochs+1):
+for i in range(epoch, epoch+nb_epochs):
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
     print('-----EPOCH{}-----'.format(i+1))
     optimizer.zero_grad(set_to_none=True)
