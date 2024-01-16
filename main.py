@@ -35,8 +35,8 @@ def InfoNCE_loss(v1,v2):
     return INCE(v1,v2)+INCE(v2,v1)
 
 
-#model_name = 'allenai/scibert_scivocab_uncased'; nout = 768 # scibert
-model_name =  'WhereIsAI/UAE-Large-V1'; nout = 1024 # UAE-Large
+model_name = 'allenai/scibert_scivocab_uncased'; nout = 768 # scibert
+#model_name =  'WhereIsAI/UAE-Large-V1'; nout = 1024 # UAE-Large
 #model_name = 'llmrails/ember-v1'; nout = 1024 # ember
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -76,7 +76,6 @@ optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 weight_decay=0.01)
 #scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*5,total_steps=nb_epochs* len(train_loader))
 
-epoch = 0
 loss = 0
 losses = []
 count_iter = 0
@@ -99,12 +98,12 @@ if len(chkpt) != 0:
   model.load_state_dict(checkpoint['model_state_dict'])
   optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
   epoch = checkpoint['epoch']
-  loss = checkpoint['loss']
+  loss = checkpoint['loss']  
   print('Done!')
 
 
 
-for i in range(epoch, nb_epochs):
+for i in range(epoch+1, epoch+nb_epochs+1):
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
     print('-----EPOCH{}-----'.format(i+1))
     optimizer.zero_grad(set_to_none=True)
@@ -172,7 +171,7 @@ for i in range(epoch, nb_epochs):
 
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', str(val_loss/len(val_loader)) )
     if best_validation_loss==val_loss:
-        print('validation loss improoved saving checkpoint...')
+        print('validation loss improved saving checkpoint...')
         save_path = os.path.join('./', 'model'+str(i)+'.pt')
 
         dir_name = './'
@@ -192,10 +191,15 @@ for i in range(epoch, nb_epochs):
         j = 0
     else:
         j += 1
-    if j == val_stop: # if val loss doesn't improve after val_stop epochs, stop training
-        break
+        if val_stop-j > 1:
+            print('validation loss has not improved, ', val_stop - j, ' epochs before early stopping')
+        elif val_stop - j == 1:
+                print('validation loss has not improved, one epoch before early stopping')
+        elif j == val_stop:
+            if j == val_stop: # if val loss doesn't improve after val_stop epochs, stop training
+                print('validation loss has not improved in ', val_stop, ' epoch(s), we stop training')
+                break
 
-        
 
 torch.cuda.empty_cache()
 gc.collect()
@@ -218,13 +222,14 @@ with torch.no_grad():
     test_loader = DataLoader(test_cids_dataset, batch_size=batch_size, shuffle=False)
 
 
-
+    print('Creating test graph embeddings...')
     graph_embeddings = []
     for batch in test_loader:
         for output in graph_model(batch.to(device)):
             graph_embeddings.append(output.tolist())
 
     test_text_loader = TorchDataLoader(test_text_dataset, batch_size=batch_size, shuffle=False)
+    print('Creating test text embeddings...')
     text_embeddings = []
     for batch in test_text_loader:
         for output in text_model(batch['input_ids'].to(device), 
@@ -234,9 +239,14 @@ with torch.no_grad():
 
 from sklearn.metrics.pairwise import cosine_similarity
 
+
+print('Computing the similarity between embeddings...')
 similarity = cosine_similarity(text_embeddings, graph_embeddings)
 
 solution = pd.DataFrame(similarity)
 solution['ID'] = solution.index
 solution = solution[['ID'] + [col for col in solution.columns if col!='ID']]
+
+print('Saving results...')
 solution.to_csv('submission.csv', index=False)
+print('Done!')
