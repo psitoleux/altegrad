@@ -51,10 +51,10 @@ train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-nb_epochs = 2
-target_batch_size, batch_size = 32, 16 # target_batch_size : effective batch after accumulation steps
+nb_epochs = 15
+target_batch_size, batch_size = 64, 64 # target_batch_size : effective batch after accumulation steps
 accumulation_steps = target_batch_size // batch_size
-learning_rate = 1e-5
+learning_rate = 4e-5
 val_stop = 2
 
 
@@ -73,7 +73,7 @@ print('Number of trainable parameters in the model: ', total_params)
 scaler = torch.cuda.amp.GradScaler() #scaler : needed for AMP training
 optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
-                                weight_decay=0.05)
+                                weight_decay=0.01)
 #scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*5,total_steps=nb_epochs* len(train_loader))
 
 loss = 0
