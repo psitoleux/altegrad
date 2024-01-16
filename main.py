@@ -1,7 +1,7 @@
 from dataloader import GraphTextDataset, GraphDataset, TextDataset
 from dataloader_2 import LabelDataset
 from info_nce import InfoNCE
-from torch_geometric.data import DataLoader
+from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model
 import numpy as np
