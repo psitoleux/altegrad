@@ -31,7 +31,7 @@ gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
 #train_dataset = LabelDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
 val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
-train_dataset = GraphTextDatset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
+train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
