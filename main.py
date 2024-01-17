@@ -12,27 +12,11 @@ import time
 import os
 import pandas as pd
 import gc
+from mparser import get_parser
 
-torch.cuda.empty_cache()
-gc.collect()
+# parser = get_parser()
+# args = parser.parse_args()
 
-CE = torch.nn.CrossEntropyLoss()
-def contrastive_loss(v1, v2):
-  logits = torch.matmul(v1,torch.transpose(v2, 0, 1))
-  labels = torch.arange(logits.shape[0], device=v1.device)
-  return CE(logits, labels) + CE(torch.transpose(logits, 0, 1), labels)
-
-BCEL = torch.nn.BCEWithLogitsLoss()
-
-def negative_sampling_contrastive_loss(v1, v2, labels):
-  logits = torch.matmul(v1,torch.transpose(v2, 0, 1))
-  eye = torch.diag_embed(labels).to(v1.device)
-  return BCEL(logits, eye) + BCEL(torch.transpose(logits, 0, 1), eye), logits.diag() > 0
-
-
-INCE = InfoNCE()
-def InfoNCE_loss(v1,v2):
-    return INCE(v1,v2)+INCE(v2,v1)
 
 
 model_name = 'allenai/scibert_scivocab_uncased'; nout = 768 # scibert
@@ -47,15 +31,15 @@ gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
 #train_dataset = LabelDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
 val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
-train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
+train_dataset = GraphTextDatset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 nb_epochs = 15
-target_batch_size, batch_size = 32, 32 # target_batch_size : effective batch after accumulation steps
+target_batch_size, batch_size = 64, 64 # target_batch_size : effective batch after accumulation steps
 accumulation_steps = target_batch_size // batch_size
-learning_rate = 2e-5
-val_stop = 2
+learning_rate = 4e-5
+early_stopping = 2
 
 
 val_loader = DataLoader(val_dataset, batch_size=batch_size # num_workers = 4 + pin_memory = True supposed to speed up things
@@ -191,13 +175,13 @@ for i in range(epoch, epoch+nb_epochs):
         j = 0
     else:
         j += 1
-        if val_stop-j > 1:
-            print('validation loss has not improved, ', val_stop - j, ' epochs before early stopping')
-        elif val_stop - j == 1:
+        if early_stopping-j > 1:
+            print('validation loss has not improved, ', early_stopping - j, ' epochs before early stopping')
+        elif early_stopping - j == 1:
                 print('validation loss has not improved, one epoch before early stopping')
-        elif j == val_stop:
-            if j == val_stop: # if val loss doesn't improve after val_stop epochs, stop training
-                print('validation loss has not improved in ', val_stop, ' epoch(s), we stop training')
+        elif j == early_stopping:
+            if j == early_stopping: # if val loss doesn't improve after val_stop epochs, stop training
+                print('validation loss has not improved in ', early_stopping, ' epoch(s), we stop training')
                 break
 
 
