@@ -35,7 +35,7 @@ train_dataset = GraphTextDatset(root='./data/', gt=gt, split='train', tokenizer=
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-nb_epochs = 15
+nb_epochs = 8
 target_batch_size, batch_size = 64, 64 # target_batch_size : effective batch after accumulation steps
 accumulation_steps = target_batch_size // batch_size
 learning_rate = 4e-5
