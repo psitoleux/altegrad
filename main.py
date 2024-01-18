@@ -105,7 +105,7 @@ if graph_pretraining:
 
     save_path_ge = os.path.join('./', 'graph_encoder.pt')
 
-    # XX init graph_encoder 
+    graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
 
     loss_pt = 0
     pt_loss = InfoNCE()
