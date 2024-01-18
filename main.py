@@ -1,6 +1,7 @@
 from dataloader import GraphTextDataset, GraphDataset, TextDataset
 from dataloader_2 import LabelDataset
-from loss import contrastive_loss, negative_sampling_contrastive_loss, info_nce_loss, pretraining_loss
+from loss import contrastive_loss, negative_sampling_contrastive_loss, info_nce_loss
+from info_nce import InfoNCE
 
 from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
@@ -92,7 +93,13 @@ epoch = 0
 
 graph_pretraining = True
 
+
+def pretraining_loss(v):
+    return InfoNCE()(v,v)
+
+
 if graph_pretraining:
+
 
     nb_epochs_pt = 100
     val_every = 10
