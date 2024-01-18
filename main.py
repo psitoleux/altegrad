@@ -106,7 +106,7 @@ if graph_pretraining:
 
 
     lr_pt = 0.01
-    batch_size_pt = 128
+    batch_size_pt = 512
     pt_best_validation_loss = 1_000_000
     
 
