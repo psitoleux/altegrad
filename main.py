@@ -105,8 +105,8 @@ if graph_pretraining:
     val_every = 1
 
 
-    lr_pt = 1e-6
-    batch_size_pt = 16
+    lr_pt = 0.01
+    batch_size_pt = 128
     pt_best_validation_loss = 1_000_000
     
 
@@ -130,12 +130,16 @@ if graph_pretraining:
             batch.pop('input_ids')
             batch.pop('attention_mask')
 
-            #with torch.cuda.amp.autocast():
-            x_graph = graph_encoder(batch)
-            current_loss = pretraining_loss(x_graph)
+            with torch.cuda.amp.autocast():
+                x_graph = graph_encoder(batch)
+                current_loss = pretraining_loss(x_graph)
 
-            current_loss.backward()
+            scaler.scale(current_loss).backward()
             loss_pt += current_loss.item()
+
+            scaler.step(optimizer_pt)
+            optimizer_pt.zero_grad(set_to_none=True)
+            scaler.update()
 
         print("Epoch ", i+1, "training loss: ", loss_pt)
         loss_pt = 0
