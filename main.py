@@ -134,7 +134,7 @@ if graph_pretraining:
             x_graph = graph_encoder(batch)
             current_loss = pretraining_loss(x_graph)
 
-            scaler.scale(current_loss).backward()
+            current_loss.backward()
             loss_pt += current_loss.item()
 
         print("Epoch ", i+1, "training loss: ", loss_pt)
