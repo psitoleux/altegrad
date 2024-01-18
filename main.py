@@ -1,6 +1,7 @@
 from dataloader import GraphTextDataset, GraphDataset, TextDataset
 from dataloader_2 import LabelDataset
-from loss import contrastive_loss, negative_sampling_contrastive_loss, info_nce_loss
+from loss import contrastive_loss, negative_sampling_contrastive_loss, info_nce_loss, pt_loss
+
 from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model
@@ -14,14 +15,14 @@ import pandas as pd
 import gc
 from mparser import get_parser
 
+from tqdm import tqdm, trange
+
 # parser = get_parser()
 # args = parser.parse_args()
 
 
 
 model_name = 'allenai/scibert_scivocab_uncased'; nout = 768 # scibert
-#model_name =  'WhereIsAI/UAE-Large-V1'; nout = 1024 # UAE-Large
-#model_name = 'llmrails/ember-v1'; nout = 1024 # ember
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -49,7 +50,7 @@ train_loader = DataLoader(train_dataset, batch_size=batch_size
 
 
 
-model = Model(model_name=model_name, num_node_features=300, nout=nout, nhid=300, graph_hidden_channels=300) # nout = model hidden dim
+model = Model(model_name=model_name, num_node_features=304, nout=nout, nhid=304, graph_hidden_channels=304) # nout = model hidden dim
 model.to(device)
 total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print('Number of trainable parameters in the model: ', total_params) 
@@ -60,13 +61,6 @@ optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 weight_decay=0.01)
 #scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*5,total_steps=nb_epochs* len(train_loader))
 
-loss = 0
-losses = []
-count_iter = 0
-time1 = time.time()
-printEvery = 50
-best_validation_loss = 1000000
-epoch = 0
 
 dir_name = './'
 files = os.listdir(dir_name)
@@ -84,6 +78,47 @@ if len(chkpt) != 0:
   epoch = checkpoint['epoch']
   loss = checkpoint['loss']  
   print('Done!')
+
+
+loss = 0
+losses = []
+count_iter = 0
+time1 = time.time()
+printEvery = 50
+best_validation_loss = 1000000
+epoch = 0
+
+
+graph_pretraining = False
+if graph_pretraining:
+
+    nb_epochs_pt = 100
+    lr_pt = lr
+    batch_size_pt = 512
+
+    optimizer_pt = XX
+
+    # XX init graph_encoder 
+    graph_encoder.train
+
+    pt_loss = InfoNCE()
+
+    for i in range(0, nb_epochs_pt):
+        train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
+        for batch in train_loader_pt:
+            batch.pop('input_ids')
+            batch.pop('attention_mask')
+
+            with torch.cuda.amp.autocast():
+                x_graph = graph_encoder(batch.to(device))
+                current_loss = pt_loss(x_graph)
+
+            scaler.scale(current_loss).backward()
+            loss += current_loss.item()
+
+        print(
+
+
 
 
 

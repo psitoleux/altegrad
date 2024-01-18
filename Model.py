@@ -32,6 +32,15 @@ class GraphEncoder(nn.Module):
 
         return x, edge_index, batch
 
+    def save_graph_encoder(self, path):
+
+        torch.save({
+        'model_state_dict': self.state_dict(),
+        }, save_path)
+
+        return path
+
+
 
 class GCNEncoder(GraphEncoder):
     def __init__(self, num_node_features, nout, nhid, graph_hidden_channels):
@@ -108,3 +117,10 @@ class Model(nn.Module):
     
     def get_graph_encoder(self):
         return self.graph_encoder
+
+    def load_pretrained_graph_encoder(self, path_pretrained_graph_encoder):
+        
+        checkpoint = torch.load(save_path)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        
+        self.graph_encoder(
