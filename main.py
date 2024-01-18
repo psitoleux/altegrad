@@ -105,8 +105,8 @@ if graph_pretraining:
     val_every = 1
 
 
-    lr_pt = 0.02
-    batch_size_pt = 1024
+    lr_pt = 0.01
+    batch_size_pt = 512
     pt_best_validation_loss = 1_000_000
     
 
