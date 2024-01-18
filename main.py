@@ -112,7 +112,6 @@ if graph_pretraining:
 
 
     loss_pt = 0
-    pt_loss = InfoNCE()
     
     print('Pretraining graph encoder')
     for i in range(1, nb_epochs_pt+1):
