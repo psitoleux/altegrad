@@ -4,7 +4,7 @@ from loss import contrastive_loss, negative_sampling_contrastive_loss, info_nce_
 
 from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
-from Model import Model
+from Model import Model, GATEncoder
 import numpy as np
 from transformers import AutoTokenizer
 import torch
