@@ -49,8 +49,9 @@ train_loader = DataLoader(train_dataset, batch_size=batch_size
                           , shuffle=True, num_workers = 4, pin_memory=True)
 
 
-
-model = Model(model_name=model_name, num_node_features=304, nout=nout, nhid=304, graph_hidden_channels=304) # nout = model hidden dim
+num_node_features, nhid, graph_hidden_channels = 304, 304, 304
+model = Model(model_name=model_name, num_node_features=num_node_features
+              , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels) # nout = model hidden dim
 model.to(device)
 total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print('Number of trainable parameters in the model: ', total_params) 
