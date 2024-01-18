@@ -121,7 +121,10 @@ if graph_pretraining:
 
 
     loss_pt = 0
-    
+   
+    val_loader_pt = DataLoader(val_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
+
+
     print('Pretraining graph encoder')
     for i in range(nb_epochs_pt):
         
@@ -149,7 +152,7 @@ if graph_pretraining:
 
             pt_val_loss = 0
             graph_encoder.eval()
-            for batch in val_loader:
+            for batch in val_loader_pt:
                 batch.pop('input_ids')
                 batch.pop('attention_mask')
 
