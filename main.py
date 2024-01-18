@@ -176,6 +176,7 @@ if graph_pretraining:
                     if item.endswith(".pt"):
                         os.remove(os.path.join(dir_name, item))
 
+                graph_encoder.save(save_path_ge)
                 print('checkpoint saved to: {}'.format(save_path_ge))
 
 
