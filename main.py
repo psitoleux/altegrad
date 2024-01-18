@@ -176,7 +176,7 @@ if graph_pretraining:
                     if item.endswith(".pt"):
                         os.remove(os.path.join(dir_name, item))
 
-                torch.save({'graph_encoder_state_dict': graph_encoder.state_dict(),}, save_path)
+                torch.save({'graph_encoder_state_dict': graph_encoder.state_dict(),}, save_path_ge)
                 
                 print('checkpoint saved to: {}'.format(save_path_ge))
 
