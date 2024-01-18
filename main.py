@@ -152,7 +152,7 @@ if graph_pretraining:
                     current_loss = pretraining_loss(x_graph)
             
             #current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y.float())   
-                    val_loss_pt += current_loss.item()
+                    pt_val_loss += current_loss.item()
         
             pt_best_validation_loss = min(pt_best_validation_loss, pt_val_loss)
 
