@@ -113,8 +113,9 @@ if graph_pretraining:
 
     loss_pt = 0
     pt_loss = InfoNCE()
-
-    for i in range(1, nb_epochs_pt+1):        
+    
+    print('Pretraining graph encoder')
+    for i in range(1, nb_epochs_pt+1):
         train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
         for batch in train_loader_pt:
             batch.pop('input_ids')
