@@ -32,7 +32,7 @@ class GraphEncoder(nn.Module):
 
         return x, edge_index, batch
 
-    def save_graph_encoder(self, path):
+    def save(self, save_path):
 
         torch.save({
         'model_state_dict': self.state_dict(),
