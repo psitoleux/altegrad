@@ -105,7 +105,7 @@ if graph_pretraining:
     val_every = 10
 
 
-    lr_pt = learning_rate
+    lr_pt = 0.01
     batch_size_pt = 128
 
     graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
