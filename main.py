@@ -49,7 +49,7 @@ train_loader = DataLoader(train_dataset, batch_size=batch_size
                           , shuffle=True, num_workers = 4, pin_memory=True)
 
 
-num_node_features, nhid, graph_hidden_channels = 304, 304, 304
+num_node_features, nhid, graph_hidden_channels = 300, 300, 300
 model = Model(model_name=model_name, num_node_features=num_node_features
               , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels) # nout = model hidden dim
 model.to(device)
