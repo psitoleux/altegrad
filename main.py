@@ -105,7 +105,7 @@ if graph_pretraining:
     val_every = 10
 
 
-    lr_pt = 0.01
+    lr_pt = 0.001
     batch_size_pt = 128
     pt_best_validation_loss = 1_000_000
     
@@ -157,7 +157,7 @@ if graph_pretraining:
                     pt_val_loss += current_loss.item()
         
             pt_best_validation_loss = min(pt_best_validation_loss, pt_val_loss)
-
+            print('validation loss: ', pt_val_loss)
             if  pt_best_validation_loss==pt_val_loss:
                 print('validation loss improved saving checkpoint...')
 
