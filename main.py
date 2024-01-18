@@ -102,10 +102,10 @@ if graph_pretraining:
 
 
     nb_epochs_pt = 100
-    val_every = 10
+    val_every = 1
 
 
-    lr_pt = 0.001
+    lr_pt = 0.5
     batch_size_pt = 128
     pt_best_validation_loss = 1_000_000
     
