@@ -1,5 +1,6 @@
 from torch import nn
 import torch.nn.functional as F
+import torch
 
 from torch_geometric.nn import GCNConv, GATv2Conv
 from torch_geometric.nn import global_mean_pool
