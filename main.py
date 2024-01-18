@@ -122,7 +122,7 @@ if graph_pretraining:
 
             with torch.cuda.amp.autocast():
                 x_graph = graph_encoder(batch)
-                current_loss = pt_loss(x_graph)
+                current_loss = pretraining_loss(x_graph)
 
             scaler.scale(current_loss).backward()
             loss_pt += current_loss.item()
@@ -142,7 +142,7 @@ if graph_pretraining:
                 with torch.no_grad():
                     x_graph = graph_encoder(batch.to(device))
 
-                    current_loss = pt_loss(x_graph)
+                    current_loss = pretraining_loss(x_graph)
             
             #current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y.float())   
                     val_loss_pt += current_loss.item()
