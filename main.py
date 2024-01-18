@@ -123,22 +123,7 @@ if graph_pretraining:
     loss_pt = 0
     
     print('Pretraining graph encoder')
-    for i in range(1, nb_epochs_pt+1):
-        train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
-        for batch in tqdm(train_loader_pt):
-            batch.pop('input_ids')
-            batch.pop('attention_mask')
-
-            with torch.cuda.amp.autocast():
-                x_graph = graph_encoder(batch)
-                current_loss = pretraining_loss(x_graph)
-
-            scaler.scale(current_loss).backward()
-            loss_pt += current_loss.item()
-
-        print("Epoch ", i, "training loss: ", loss_pt)
-        loss_pt = 0
-        
+    for i in range(nb_epochs_pt):
         if i % val_every == 0:
 
             pt_val_loss = 0
@@ -168,6 +153,22 @@ if graph_pretraining:
                         os.remove(os.path.join(dir_name, item))
 
                 print('checkpoint saved to: {}'.format(save_path_ge))
+        
+        train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
+        for batch in tqdm(train_loader_pt):
+            batch.pop('input_ids')
+            batch.pop('attention_mask')
+
+            with torch.cuda.amp.autocast():
+                x_graph = graph_encoder(batch)
+                current_loss = pretraining_loss(x_graph)
+
+            scaler.scale(current_loss).backward()
+            loss_pt += current_loss.item()
+
+        print("Epoch ", i+1, "training loss: ", loss_pt)
+        loss_pt = 0
+        
 
 
 
