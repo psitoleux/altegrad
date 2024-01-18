@@ -90,7 +90,7 @@ best_validation_loss = 1000000
 epoch = 0
 
 
-graph_pretraining = False
+graph_pretraining = True
 
 if graph_pretraining:
 
@@ -101,16 +101,20 @@ if graph_pretraining:
     lr_pt = lr
     batch_size_pt = 512
 
-    optimizer_pt = XX
+    graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
+
+    optimizer_pt = optim.AdamW(graph_encoder.parameters(), lr=lr_pt,
+                                betas=(0.9, 0.999),
+                                weight_decay=0.01)
+
 
     save_path_ge = os.path.join('./', 'graph_encoder.pt')
 
-    graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
 
     loss_pt = 0
     pt_loss = InfoNCE()
 
-    for i in range(0, nb_epochs_pt):        
+    for i in range(1, nb_epochs_pt+1):        
         train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
         for batch in train_loader_pt:
             batch.pop('input_ids')
@@ -125,34 +129,35 @@ if graph_pretraining:
         print("Epoch ", i, "test loss: ", loss_pt)
         loss_pt = 0
         
+    if i % val_every == 1:
 
-    pt_val_loss = 0
-    graph_encoder.eval()
-    for batch in val_loader:
-        batch.pop('input_ids')
-        batch.pop('attention_mask')
+        pt_val_loss = 0
+        graph_encoder.eval()
+        for batch in val_loader:
+            batch.pop('input_ids')
+            batch.pop('attention_mask')
 
-        graph_batch = batch
-        with torch.no_grad():
-            x_graph = graph_encoder(batch.to(device))
+            graph_batch = batch
+            with torch.no_grad():
+                x_graph = graph_encoder(batch.to(device))
 
-            current_loss = pt_loss(x_graph, x_text)
+                current_loss = pt_loss(x_graph, x_text)
             
             #current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y.float())   
-            val_loss_pt += current_loss.item()
+                val_loss_pt += current_loss.item()
         
-    pt_best_validation_loss = min(pt_best_validation_loss, pt_val_loss)
+        pt_best_validation_loss = min(pt_best_validation_loss, pt_val_loss)
 
-    if pt_best_validation_loss==pt_val_loss:
-        print('validation loss improved saving checkpoint...')
+        if pt_best_validation_loss==pt_val_loss:
+            print('validation loss improved saving checkpoint...')
 
-        dir_name = './'
-        files = os.listdir(dir_name)
-        for item in files:
-            if item.endswith(".pt"):
-                os.remove(os.path.join(dir_name, item))
+            dir_name = './'
+            files = os.listdir(dir_name)
+            for item in files:
+                if item.endswith(".pt"):
+                    os.remove(os.path.join(dir_name, item))
 
-        print('checkpoint saved to: {}'.format(save_path_ge))
+            print('checkpoint saved to: {}'.format(save_path_ge))
 
 
 
