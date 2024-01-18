@@ -136,10 +136,10 @@ if graph_pretraining:
             scaler.scale(current_loss).backward()
             loss_pt += current_loss.item()
 
-        print("Epoch ", i, "test loss: ", loss_pt)
+        print("Epoch ", i, "training loss: ", loss_pt)
         loss_pt = 0
         
-        if i % val_every == 1:
+        if i % val_every == 0:
 
             pt_val_loss = 0
             graph_encoder.eval()
