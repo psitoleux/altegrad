@@ -99,7 +99,7 @@ if graph_pretraining:
 
 
     lr_pt = learning_rate
-    batch_size_pt = 512
+    batch_size_pt = 128
 
     graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
 
@@ -121,6 +121,7 @@ if graph_pretraining:
             batch.pop('attention_mask')
 
             with torch.cuda.amp.autocast():
+                x_graph = graph_encoder(batch)
                 current_loss = pt_loss(x_graph)
 
             scaler.scale(current_loss).backward()
@@ -141,7 +142,7 @@ if graph_pretraining:
             with torch.no_grad():
                 x_graph = graph_encoder(batch.to(device))
 
-                current_loss = pt_loss(x_graph, x_text)
+                current_loss = pt_loss(x_graph)
             
             #current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y.float())   
                 val_loss_pt += current_loss.item()
