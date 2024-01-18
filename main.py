@@ -1,6 +1,6 @@
 from dataloader import GraphTextDataset, GraphDataset, TextDataset
 from dataloader_2 import LabelDataset
-from loss import contrastive_loss, negative_sampling_contrastive_loss, info_nce_loss, pt_loss
+from loss import contrastive_loss, negative_sampling_contrastive_loss, info_nce_loss, pretraining_loss
 
 from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
@@ -130,35 +130,35 @@ if graph_pretraining:
         print("Epoch ", i, "test loss: ", loss_pt)
         loss_pt = 0
         
-    if i % val_every == 1:
+        if i % val_every == 1:
 
-        pt_val_loss = 0
-        graph_encoder.eval()
-        for batch in val_loader:
-            batch.pop('input_ids')
-            batch.pop('attention_mask')
+            pt_val_loss = 0
+            graph_encoder.eval()
+            for batch in val_loader:
+                batch.pop('input_ids')
+                batch.pop('attention_mask')
 
-            graph_batch = batch
-            with torch.no_grad():
-                x_graph = graph_encoder(batch.to(device))
+                graph_batch = batch
+                with torch.no_grad():
+                    x_graph = graph_encoder(batch.to(device))
 
-                current_loss = pt_loss(x_graph)
+                    current_loss = pt_loss(x_graph)
             
             #current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y.float())   
-                val_loss_pt += current_loss.item()
+                    val_loss_pt += current_loss.item()
         
-        pt_best_validation_loss = min(pt_best_validation_loss, pt_val_loss)
+            pt_best_validation_loss = min(pt_best_validation_loss, pt_val_loss)
 
-        if pt_best_validation_loss==pt_val_loss:
-            print('validation loss improved saving checkpoint...')
+            if  pt_best_validation_loss==pt_val_loss:
+                print('validation loss improved saving checkpoint...')
 
-            dir_name = './'
-            files = os.listdir(dir_name)
-            for item in files:
-                if item.endswith(".pt"):
-                    os.remove(os.path.join(dir_name, item))
+                dir_name = './'
+                files = os.listdir(dir_name)
+                for item in files:
+                    if item.endswith(".pt"):
+                        os.remove(os.path.join(dir_name, item))
 
-            print('checkpoint saved to: {}'.format(save_path_ge))
+                print('checkpoint saved to: {}'.format(save_path_ge))
 
 
 

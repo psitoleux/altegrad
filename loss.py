@@ -19,7 +19,7 @@ INCE = InfoNCE()
 def info_nce_loss(v1,v2):
     return INCE(v1,v2)+INCE(v2,v1)
 
-def pt_loss(v):
+def pretraining_loss(v):
     return INCE(v,v)
 
 
