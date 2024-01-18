@@ -1,6 +1,5 @@
 from torch import nn
 import torch.nn.functional as F
-import torch
 
 from torch_geometric.nn import GCNConv, GATv2Conv
 from torch_geometric.nn import global_mean_pool
@@ -32,14 +31,6 @@ class GraphEncoder(nn.Module):
         batch = graph_batch.batch
 
         return x, edge_index, batch
-
-    def save(self, save_path):
-
-        torch.save({
-        'graph_encoder_state_dict': self.state_dict(),
-        }, save_path)
-
-        return path
 
 
 
