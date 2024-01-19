@@ -120,7 +120,7 @@ if graph_pretraining:
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01)
 
-    scheduler_pt = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer_pt, T_0=10*iters, T_mult=1, eta_min=lr_pt*1e-3)
+    scheduler_pt = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer_pt, T_0=10, T_mult=1, eta_min=lr_pt*1e-3)
     
 
 
