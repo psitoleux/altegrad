@@ -17,7 +17,7 @@ from parsers import get_pretraining_parser
 
 from tqdm import tqdm, trange
 
-def pretraining_ loss(v):
+def pretraining_loss(v):
     return InfoNCE()(v,v)
 
 
