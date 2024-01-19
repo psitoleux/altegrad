@@ -40,6 +40,9 @@ gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
 val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
 train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
+train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
+val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
+
 
 nout = 768
 num_node_features, nhid, graph_hidden_channels = 300, 300, 300
@@ -50,7 +53,8 @@ optimizer = optim.AdamW(graph_encoder.parameters(), lr=lr,
                             betas=(0.9, 0.999),
                             weight_decay=0.01)
 
-scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.7, patience=1, threshold=1e-4, threshold_mode='rel')
+#scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.7, patience=1, threshold=1e-4, threshold_mode='rel')
+scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=lr*5,total_steps=nb_epochs* len(train_loader))
 
 
 save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')
@@ -58,9 +62,8 @@ save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')
 
 loss = 0
 
-val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
-
 k = 0 
+patience = args.patience
 
 print('Pretraining graph encoder')
 for i in range(nb_epochs):
@@ -81,9 +84,11 @@ for i in range(nb_epochs):
         optimizer.zero_grad(set_to_none=True)
         scaler.update()
 
+        scheduler.step()
+
         
 
-    print("Epoch ", i+1, "training loss: ", loss)
+    print("Epoch ", i+1, "training loss: ", loss / (len(train_loader) / len(val_loader) ) )
     loss = 0
     
 
@@ -120,7 +125,8 @@ for i in range(nb_epochs):
             k = 0
         else:
             k += 1
-
-        scheduler.step(val_loss)
+        if k == patience:
+            break
+        #scheduler.step(val_loss)
         
 
