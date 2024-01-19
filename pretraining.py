@@ -1,7 +1,7 @@
 from dataloader import GraphTextDataset, GraphDataset, TextDataset
 from loss import info_nce_loss
 from info_nce import InfoNCE
-
+from transformers import AutoTokenizer
 from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model, GATEncoder
