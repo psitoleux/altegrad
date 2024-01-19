@@ -18,30 +18,27 @@ from parsers import get_main_parser
 
 from tqdm import tqdm, trange
 
-# parser = get_parser()
-# args = parser.parse_args()
+args= get_main_parser()
 
 
 
-model_name = 'allenai/scibert_scivocab_uncased'; nout = 768 # scibert
+model_name = args.model_name
+nout = args.nout
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
-
-#val_dataset = LabelDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
-#train_dataset = LabelDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
 val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
 train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-nb_epochs = 20
-target_batch_size, batch_size = 128, 128 # target_batch_size : effective batch after accumulation steps
+nb_epochs = args.epochs
+target_batch_size, batch_size = args.target_batch_size, args.batch_size# target_batch_size : effective batch after accumulation steps
 accumulation_steps = target_batch_size // batch_size
-learning_rate = 8e-5
-early_stopping = 2
+learning_rate = args.lr
+patience = args.patience
 
 
 val_loader = DataLoader(val_dataset, batch_size=batch_size # num_workers = 4 + pin_memory = True supposed to speed up things
@@ -50,7 +47,8 @@ train_loader = DataLoader(train_dataset, batch_size=batch_size
                           , shuffle=True, num_workers = 4, pin_memory=True)
 
 
-num_node_features, nhid, graph_hidden_channels = 300, 300, 300
+num_node_features, nhid, graph_hidden_channels = args.num_node_features, args.nhid, args.graph_hidden_channels
+
 model = Model(model_name=model_name, num_node_features=num_node_features
               , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels) # nout = model hidden dim
 model.to(device)
@@ -87,7 +85,7 @@ loss = 0
 losses = []
 count_iter = 0
 time1 = time.time()
-printEvery = 50
+printEvery = args.print_every
 best_validation_loss = 1000000
 epoch = 0
 
@@ -154,8 +152,6 @@ for i in range(epoch, epoch+nb_epochs):
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
         batch.pop('attention_mask')
-        #y = batch.y #torch.FloatTensor(batch.y)
-        #batch.pop('y')
 
         graph_batch = batch
         with torch.no_grad():
@@ -164,7 +160,6 @@ for i in range(epoch, epoch+nb_epochs):
                                 attention_mask.to(device))
             current_loss = info_nce_loss(x_graph, x_text)
             
-            #current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y.float())   
             val_loss += current_loss.item()
     best_validation_loss = min(best_validation_loss, val_loss)
 
@@ -190,13 +185,13 @@ for i in range(epoch, epoch+nb_epochs):
         j = 0
     else:
         j += 1
-        if early_stopping-j > 1:
-            print('validation loss has not improved, ', early_stopping - j, ' epochs before early stopping')
+        if patience-j > 1:
+            print('validation loss has not improved, ', patience - j, ' epochs before early stopping')
         elif early_stopping - j == 1:
                 print('validation loss has not improved, one epoch before early stopping')
-        elif j == early_stopping:
-            if j == early_stopping: # if val loss doesn't improve after val_stop epochs, stop training
-                print('validation loss has not improved in ', early_stopping, ' epoch(s), we stop training')
+        elif j == patience:
+            if j == patience: # if val loss doesn't improve after patience epochs, stop training
+                print('validation loss has not improved in ', patience, ' epoch(s), we stop training')
                 break
 
 

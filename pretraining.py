@@ -28,8 +28,9 @@ val_every = args.val_frequency
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-lr = 0.02
-batch_size = 512
+lr = args.lr
+batch_size = args.batch_size
+
 pt_best_validation_loss = 1_000_000
 
 nout = 768
@@ -50,6 +51,7 @@ loss = 0
 
 val_loader = DataLoader(val_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
 
+k = 0 
 
 print('Pretraining graph encoder')
 for i in range(nb_epochs_pt):
@@ -95,7 +97,7 @@ for i in range(nb_epochs_pt):
         print('validation loss: ', val_loss)
         if  best_validation_loss==val_loss:
             print('validation loss improved saving checkpoint...')
-
+            
             dir_name = './pretrained/'
             files = os.listdir(dir_name)
             for item in files:
@@ -105,6 +107,10 @@ for i in range(nb_epochs_pt):
             torch.save({'graph_encoder_state_dict': graph_encoder.state_dict(),}, save_path_ge)
             
             print('checkpoint saved to: {}'.format(save_path_ge))
+
+            k = 0
+        else:
+            k += 1
 
         scheduler_pt.step(val_loss)
         

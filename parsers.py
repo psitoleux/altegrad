@@ -1,28 +1,49 @@
 import argparse
 
+
 def get_main_parser():
+    parser = argparse.ArgumentParser(description="Contrastive Learning on Graph Text Dataset")
 
-    parser = argparse.ArgumentParser()
-    
-    parser.add_argument('--nb_epochs', type=int, default=20)
-    parser.add_argument('--learning_rate', type=float, default=4e-5)
-    parser.add_argument('--weight_decay', type=float, default=0.01)
-    parser.add_argument('--beta1', type=float, default=0.9)
-    parser.add_argument('--beta2', type=float, default=0.999)
-    parser.add_argument('--early_stopping', type=int, default=2)
+    parser.add_argument("--model_name", type=str, default="allenai/scibert_scivocab_uncased",
+                        help="Transformer model name (default: allenai/scibert_scivocab_uncased)")
+    parser.add_argument("--nout", type=int, default=768,
+                        help="Output dimension of the final layers (default: 768)")
+    parser.add_argument("--num_node_features", type=int, default=300,
+                        help="Number of node features (default: 300)")
+    parser.add_argument("--nhid", type=int, default=300,
+                        help="Hidden layer dimension (default: 300)")
+    parser.add_argument("--graph_hidden_channels", type=int, default=300,
+                        help="Number of channels in graph hidden layers (default: 300)")
 
-    parser.add_argument('--batch_size', type=int, default=64)
-    parser.add_argument('--loss', type=str, default='InfoNCE')
+    parser.add_argument("--batch_size", type=int, default=64,
+                        help="Batch size per GPU (default: 64)")
+    parser.add_argument("--target_batch_size", type=int, default=64,
+                        help="Targeted effective batch size after gradient accumulation (default: 64)")
 
-    parser.add_argument('--text_encoder', type=str, default='scibert')
+    parser.add_argument("--lr", type=float, default=4e-5,
+                        help="Learning rate (default: 4e-5)")
 
-    parser.add_argument('--pretraining', type=str, default='from_scratch')
-    parser.add_argument('--target_batch_size', type=int, default=32)
-    parser.add_argument('--num_node_features', type=int, default=300)
-    parser.add_argument('--nhid', type=int, default=300)
-    parser.add_argument('--graph_hidden_channels', type=int, default=300)
-    
-    return parser.parse_args()
+    parser.add_argument("--epochs", type=int, default=20,
+                        help="Number of training epochs (default: 20)")
+
+    parser.add_argument("--patience", type=int, default=4,
+                        help="Patience for early stopping (default: 4)")
+    parser.add_argument("--print_every", type=int, default=50,
+                        help="Print training details every X iterations (default: 50)")
+
+    parser.add_argument("--pretrained_graph_encoder", type=str, default=None,
+                        help="Path to the pretrained graph encoder state dict (optional)")
+
+    parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu",
+                        help="Device to run the model on (default: cuda if available, otherwise cpu)")
+
+    return parser.parse_args() 
+
+# Call the function to parse arguments and assign them to variables
+args = parse_arguments()
+
+# Set the GPU ID accordingly
+device = f"cuda:{args.gpu}" if torch.cuda.is_available() else "cpu"
 
 def get_pretraining_parser():
     parser = argparse.ArgumentParser(description="Graph Encoder Pretraining Script")
@@ -36,8 +57,5 @@ def get_pretraining_parser():
     parser.add_argument("--lr", type=float, default=0.02,
                         help="Learning rate for pre-training (default: 0.02)")
 
-
-
-    parser.set_defaults(pin_mem_dl=False)
 
     return parser.parse_args()
