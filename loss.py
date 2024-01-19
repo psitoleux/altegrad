@@ -23,7 +23,6 @@ def pretraining_loss(v):
     return INCE(v,v)
 
 
-
 def get_loss(loss_name):
 
     if loss_name.lower() == 'infonce' or loss_name.lower() == 'info_nce':
