@@ -106,13 +106,9 @@ if graph_pretraining:
     val_every = 1
 
 
-    lr_pt = 0.01
+    lr_pt = 0.02
     batch_size_pt = 512
     pt_best_validation_loss = 1_000_000
-    
-    train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
-    iters = len(train_loader_pt)
-
 
     graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
 
@@ -120,7 +116,7 @@ if graph_pretraining:
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01)
 
-    scheduler_pt = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer_pt, T_0=10, T_mult=1, eta_min=lr_pt*1e-3)
+    scheduler_pt = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer_pt, T_0=20, T_mult=0.5, eta_min=lr_pt*1e-3)
     
 
 
@@ -136,7 +132,7 @@ if graph_pretraining:
     for i in range(nb_epochs_pt):
         
         train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
-        for j,batch in tqdm(enumerate(train_loader_pt)):
+        for j,batch in enumerate(tqdm(train_loader_pt)):
             batch.pop('input_ids')
             batch.pop('attention_mask')
 
@@ -151,7 +147,7 @@ if graph_pretraining:
             optimizer_pt.zero_grad(set_to_none=True)
             scaler.update()
 
-            scheduler_pt.step(i + j / iters)
+            scheduler_pt.step(i + j / len(train_loader_pt))
             
 
         print("Epoch ", i+1, "training loss: ", loss_pt)
