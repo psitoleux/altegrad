@@ -131,7 +131,7 @@ if graph_pretraining:
     for i in range(nb_epochs_pt):
         
         train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
-        for j,batch in enumerate(train_loader_pt):
+        for j,batch in enumerate(tqdm(train_loader_pt)):
             batch.pop('input_ids')
             batch.pop('attention_mask')
 
