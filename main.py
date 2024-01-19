@@ -72,6 +72,7 @@ for item in files:
         chkpt += [os.path.join(dir_name, item)]
 chkpt = sorted(chkpt)
 
+'''
 if len(chkpt) != 0:
   print('loading checkpoint...')
   checkpoint = torch.load(chkpt[-1])
@@ -80,7 +81,7 @@ if len(chkpt) != 0:
   epoch = checkpoint['epoch']
   loss = checkpoint['loss']  
   print('Done!')
-
+'''
 
 loss = 0
 losses = []
@@ -150,7 +151,7 @@ if graph_pretraining:
             optimizer_pt.zero_grad(set_to_none=True)
             scaler.update()
 
-            scheduler.step(i + j / iters)
+            scheduler_pt.step(i + j / iters)
             
 
         print("Epoch ", i+1, "training loss: ", loss_pt)
