@@ -28,25 +28,19 @@ def get_main_parser():
 
     parser.add_argument("--patience", type=int, default=4,
                         help="Patience for early stopping (default: 4)")
+    
     parser.add_argument("--print_every", type=int, default=50,
                         help="Print training details every X iterations (default: 50)")
+
 
     parser.add_argument("--pretrained_graph_encoder", type=str, default=None,
                         help="Path to the pretrained graph encoder state dict (optional)")
 
-    parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu",
-                        help="Device to run the model on (default: cuda if available, otherwise cpu)")
-
     return parser.parse_args() 
 
-# Call the function to parse arguments and assign them to variables
-args = parse_arguments()
-
-# Set the GPU ID accordingly
-device = f"cuda:{args.gpu}" if torch.cuda.is_available() else "cpu"
 
 def get_pretraining_parser():
-    parser = argparse.ArgumentParser(description="Graph Encoder Pretraining Script")
+    parser = argparse.ArgumentParser(description="Graph Encoder Pretraining")
 
     parser.add_argument("--epochs", type=int, default=100,
                         help="Number of epochs for pre-training (default: 100)")
