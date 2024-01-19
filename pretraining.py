@@ -31,7 +31,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 lr = args.lr
 batch_size = args.batch_size
 
-pt_best_validation_loss = 1_000_000
+best_validation_loss = 1_000_000
 
 tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
 
@@ -45,11 +45,11 @@ nout = 768
 num_node_features, nhid, graph_hidden_channels = 300, 300, 300
 graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels).to(device)
 
-optimizer_pt = optim.AdamW(graph_encoder.parameters(), lr=lr,
+optimizer = optim.AdamW(graph_encoder.parameters(), lr=lr,
                             betas=(0.9, 0.999),
                             weight_decay=0.01)
 
-scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer_pt, factor=0.7, patience=1, threshold=1e-4, threshold_mode='rel')
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.7, patience=1, threshold=1e-4, threshold_mode='rel')
 
 
 save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')
@@ -57,14 +57,14 @@ save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')
 
 loss = 0
 
-val_loader = DataLoader(val_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
+val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
 
 k = 0 
 
 print('Pretraining graph encoder')
-for i in range(nb_epochs_pt):
+for i in range(nb_epochs):
     
-    train_loader = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
     for j,batch in enumerate(train_loader):
         batch.pop('input_ids')
         batch.pop('attention_mask')
@@ -74,23 +74,23 @@ for i in range(nb_epochs_pt):
             current_loss = pretraining_loss(x_graph)
 
         scaler.scale(current_loss).backward()
-        loss_pt += current_loss.item()
+        loss += current_loss.item()
 
         scaler.step(optimizer)
-        optimizer_pt.zero_grad(set_to_none=True)
+        optimizer.zero_grad(set_to_none=True)
         scaler.update()
 
         
 
-    print("Epoch ", i+1, "training loss: ", loss_pt)
-    loss_pt = 0
+    print("Epoch ", i+1, "training loss: ", loss)
+    loss = 0
     
 
     if i % val_every == 0:
 
         val_loss = 0
         graph_encoder.eval()
-        for batch in val_loader_pt:
+        for batch in val_loader:
             batch.pop('input_ids')
             batch.pop('attention_mask')
 
@@ -101,7 +101,7 @@ for i in range(nb_epochs_pt):
         
             val_loss += current_loss.item()
     
-        best_validation_loss = min(pt_best_validation_loss, pt_val_loss)
+        best_validation_loss = min(best_validation_loss, val_loss)
         print('validation loss: ', val_loss)
         if  best_validation_loss==val_loss:
             print('validation loss improved saving checkpoint...')
@@ -120,6 +120,6 @@ for i in range(nb_epochs_pt):
         else:
             k += 1
 
-        scheduler_pt.step(val_loss)
+        scheduler.step(val_loss)
         
 
