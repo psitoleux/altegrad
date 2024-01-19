@@ -70,7 +70,7 @@ for item in files:
         chkpt += [os.path.join(dir_name, item)]
 chkpt = sorted(chkpt)
 
-'''
+
 if len(chkpt) != 0:
   print('loading checkpoint...')
   checkpoint = torch.load(chkpt[-1])
@@ -79,7 +79,7 @@ if len(chkpt) != 0:
   epoch = checkpoint['epoch']
   loss = checkpoint['loss']  
   print('Done!')
-'''
+
 
 loss = 0
 losses = []
@@ -91,11 +91,11 @@ epoch = 0
 
 
 
-
+pretrained_graph_encoder = args.pretrained_graph_encoder
 
 
 if pretrained_graph_encoder is not None:
-    
+
     model.load_pretrained_graph_encoder(pretrained_graph_encoder)
 
 
@@ -112,8 +112,6 @@ for i in range(epoch, epoch+nb_epochs):
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
         batch.pop('attention_mask')
-        #y = batch.y#torch.FloatTensor(batch.y)
-        #batch.pop('y')
 
         graph_batch = batch
 
@@ -122,8 +120,7 @@ for i in range(epoch, epoch+nb_epochs):
             x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-            current_loss = info_nce_loss(x_graph, x_text)
-            #current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text,y.float())   
+            current_loss = info_nce_loss(x_graph, x_text) 
 
         scaler.scale(current_loss).backward()
         loss += current_loss.item()
