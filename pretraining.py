@@ -45,6 +45,7 @@ nout = 768
 num_node_features, nhid, graph_hidden_channels = 300, 300, 300
 graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels).to(device)
 
+scaler = torch.cuda.amp.GradScaler()
 optimizer = optim.AdamW(graph_encoder.parameters(), lr=lr,
                             betas=(0.9, 0.999),
                             weight_decay=0.01)
