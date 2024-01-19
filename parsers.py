@@ -50,6 +50,8 @@ def get_pretraining_parser():
                         help="Batch size for pre-training (default: 512)")
     parser.add_argument("--lr", type=float, default=0.005,
                         help="Learning rate for pre-training (default: 0.005)")
+    parser.add_argument("--weight_decay", type=float, default=0.01,
+                        help="AdamW weight decay (default : 0.01)")
 
 
     return parser.parse_args()
