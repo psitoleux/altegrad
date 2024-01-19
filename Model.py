@@ -16,8 +16,7 @@ class GraphEncoder(nn.Module):
         self.ln = nn.LayerNorm((nout))
 
         self.mol_hidden1 = nn.Linear(graph_hidden_channels, nhid)
-        self.mol_hidden2 = nn.Linear(nhid, nout)
-        
+        self.mol_hidden2 = nn.Linear(nhid, nout)        
 
     def mlp(self, x):
         x = self.mol_hidden1(x).relu()
@@ -54,7 +53,7 @@ class GCNEncoder(GraphEncoder):
         x = global_mean_pool(x, batch)
 
         x = self.mlp(x)
-
+        
         return x
 
 

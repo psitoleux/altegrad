@@ -18,12 +18,13 @@ from parsers import get_pretraining_parser
 from tqdm import tqdm, trange
 
 def pretraining_ loss(v):
-return InfoNCE()(v,v)
+    return InfoNCE()(v,v)
 
 
+args = get_pretraining_parser()
 
-nb_epochs = 100
-val_every = 1
+nb_epochs = args.epochs
+val_every = args.val_frequency
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -38,7 +39,8 @@ graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
 optimizer_pt = optim.AdamW(graph_encoder.parameters(), lr=lr_pt,
                             betas=(0.9, 0.999),
                             weight_decay=0.01)
-scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer_pt, factor=0.8, patience=1, threshold=1e-4, threshold_mode='rel')
+
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer_pt, factor=0.7, patience=1, threshold=1e-4, threshold_mode='rel')
 
 
 save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')

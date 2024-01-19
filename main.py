@@ -14,7 +14,7 @@ import time
 import os
 import pandas as pd
 import gc
-from mparser import get_parser
+from parsers import get_main_parser
 
 from tqdm import tqdm, trange
 
@@ -96,10 +96,9 @@ epoch = 0
 
 
 
-if graph_pretraining = True
-
-
-    model.load_pretrained_graph_encoder(save_path_ge)
+if pretrained_graph_encoder is not None:
+    
+    model.load_pretrained_graph_encoder(pretrained_graph_encoder)
 
 
 
