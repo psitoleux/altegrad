@@ -119,7 +119,7 @@ if graph_pretraining:
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01)
 
-    scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer_pt, T_0=10*iters, T_mult=1, eta_min=lr_pt*1e-3)
+    scheduler_pt = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer_pt, T_0=10*iters, T_mult=1, eta_min=lr_pt*1e-3)
     
 
 
@@ -135,7 +135,7 @@ if graph_pretraining:
     for i in range(nb_epochs_pt):
         
         train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
-        for batch in tqdm(train_loader_pt):
+        for j,batch in tqdm(enumerate(train_loader_pt)):
             batch.pop('input_ids')
             batch.pop('attention_mask')
 
@@ -149,6 +149,9 @@ if graph_pretraining:
             scaler.step(optimizer_pt)
             optimizer_pt.zero_grad(set_to_none=True)
             scaler.update()
+
+            scheduler.step(i + j / iters)
+            
 
         print("Epoch ", i+1, "training loss: ", loss_pt)
         loss_pt = 0
