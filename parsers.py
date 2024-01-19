@@ -50,6 +50,8 @@ def get_pretraining_parser():
                         help="Batch size for pre-training (default: 512)")
     parser.add_argument("--lr", type=float, default=0.02,
                         help="Learning rate for pre-training (default: 0.02)")
+    parser.add_argument("--patience", type=int, default=10,
+                        help="Patience for early stopping (default: 10)")
 
 
     return parser.parse_args()
