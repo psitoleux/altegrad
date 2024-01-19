@@ -1,5 +1,5 @@
 from dataloader import GraphTextDataset, GraphDataset, TextDataset
-from dataloader_2 import LabelDataset
+
 from loss import contrastive_loss, negative_sampling_contrastive_loss, info_nce_loss
 from info_nce import InfoNCE
 
@@ -92,99 +92,11 @@ best_validation_loss = 1000000
 epoch = 0
 
 
-graph_pretraining = True
 
 
-def pretraining_loss(v):
-    return InfoNCE()(v,v)
 
 
-if graph_pretraining:
-
-
-    nb_epochs_pt = 100
-    val_every = 1
-
-
-    lr_pt = 0.02
-    batch_size_pt = 512
-    pt_best_validation_loss = 1_000_000
-
-    graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
-
-    optimizer_pt = optim.AdamW(graph_encoder.parameters(), lr=lr_pt,
-                                betas=(0.9, 0.999),
-                                weight_decay=0.01)
-    scheduler_pt = optim.lr_scheduler.ReduceLROnPlateau(optimizer_pt, factor=0.8, patience=1, threshold=1e-4, threshold_mode='rel')
-
-
-    save_path_ge = os.path.join('./', 'graph_encoder.pt')
-
-
-    loss_pt = 0
-   
-    val_loader_pt = DataLoader(val_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
-
-
-    print('Pretraining graph encoder')
-    for i in range(nb_epochs_pt):
-        
-        train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
-        for j,batch in enumerate(train_loader_pt):
-            batch.pop('input_ids')
-            batch.pop('attention_mask')
-
-            with torch.cuda.amp.autocast():
-                x_graph = graph_encoder(batch)
-                current_loss = pretraining_loss(x_graph)
-
-            scaler.scale(current_loss).backward()
-            loss_pt += current_loss.item()
-
-            scaler.step(optimizer_pt)
-            optimizer_pt.zero_grad(set_to_none=True)
-            scaler.update()
-
-            
-
-        print("Epoch ", i+1, "training loss: ", loss_pt)
-        loss_pt = 0
-        
-
-        if i % val_every == 0:
-
-            pt_val_loss = 0
-            graph_encoder.eval()
-            for batch in val_loader_pt:
-                batch.pop('input_ids')
-                batch.pop('attention_mask')
-
-                graph_batch = batch
-                with torch.no_grad():
-                    x_graph = graph_encoder(batch.to(device))
-
-                    current_loss = pretraining_loss(x_graph)
-            
-            #current_loss, pred = negative_sampling_contrastive_loss(x_graph, x_text, y.float())   
-                    pt_val_loss += current_loss.item()
-        
-            pt_best_validation_loss = min(pt_best_validation_loss, pt_val_loss)
-            print('validation loss: ', pt_val_loss)
-            if  pt_best_validation_loss==pt_val_loss:
-                print('validation loss improved saving checkpoint...')
-
-                dir_name = './'
-                files = os.listdir(dir_name)
-                for item in files:
-                    if item.endswith(".pt"):
-                        os.remove(os.path.join(dir_name, item))
-
-                torch.save({'graph_encoder_state_dict': graph_encoder.state_dict(),}, save_path_ge)
-                
-                print('checkpoint saved to: {}'.format(save_path_ge))
-
-            scheduler_pt.step(pt_val_loss)
-            
+if graph_pretraining = True
 
 
     model.load_pretrained_graph_encoder(save_path_ge)
