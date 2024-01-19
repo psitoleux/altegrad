@@ -109,12 +109,18 @@ if graph_pretraining:
     batch_size_pt = 512
     pt_best_validation_loss = 1_000_000
     
+    train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
+    iters = len(train_loader_pt)
+
 
     graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
 
     optimizer_pt = optim.AdamW(graph_encoder.parameters(), lr=lr_pt,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01)
+
+    scheduler = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer_pt, T_0=10*iters, T_mult=1, eta_min=lr_pt*1e-3)
+    
 
 
     save_path_ge = os.path.join('./', 'graph_encoder.pt')
