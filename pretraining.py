@@ -1,7 +1,7 @@
 from dataloader import GraphTextDataset, GraphDataset, TextDataset
 from loss import info_nce_loss
 from info_nce import InfoNCE
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, get_cosine_schedule_with_warmup
 from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model, GATEncoder
@@ -53,9 +53,15 @@ optimizer = optim.AdamW(graph_encoder.parameters(), lr=lr,
                             betas=(0.9, 0.999),
                             weight_decay=0.01)
 
+total_steps = nb_epochs * len(train_loader)
 #scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.7, patience=1, threshold=1e-4, threshold_mode='rel')
-scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=lr*2,total_steps=nb_epochs* len(train_loader))
 
+scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=lr*2,total_steps=nb_epochs* len(train_loader))
+
+
+
+scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = total_steps // 8, 
+                                            num_training_steps = total_steps)
 
 save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')
 
