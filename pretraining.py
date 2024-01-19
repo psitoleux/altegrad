@@ -22,7 +22,7 @@ def pretraining_loss(v):
 
 
 args = get_pretraining_parser()
-
+print(args.__dict__)
 nb_epochs = args.epochs
 val_every = args.val_frequency
 
