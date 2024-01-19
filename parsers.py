@@ -48,8 +48,8 @@ def get_pretraining_parser():
                         help="Frequency of evaluation on validation dataset (default: 1)")
     parser.add_argument("--batch_size", type=int, default=512,
                         help="Batch size for pre-training (default: 512)")
-    parser.add_argument("--lr", type=float, default=0.02,
-                        help="Learning rate for pre-training (default: 0.02)")
+    parser.add_argument("--lr", type=float, default=0.005,
+                        help="Learning rate for pre-training (default: 0.005)")
 
 
     return parser.parse_args()
