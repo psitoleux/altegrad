@@ -43,8 +43,11 @@ val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tok
 train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
 train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
-val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
+val_loader = DataLoader(val_dataset, batch_size=1, shuffle=True, num_workers=4, pin_memory=True)
 
+val_loader = DataLoader(val_dataset, batch_size=len(val_loader), shuffle=True, num_workers=4, pin_memory=True)
+
+print(len(val_loader))
 
 nout = 768
 num_node_features, nhid, graph_hidden_channels = 300, 300, 300
