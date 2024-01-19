@@ -63,7 +63,7 @@ save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')
 loss = 0
 
 k = 0 
-patience = args.patience
+patience = 10
 
 print('Pretraining graph encoder')
 for i in range(nb_epochs):
