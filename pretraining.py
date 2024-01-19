@@ -22,7 +22,7 @@ def pretraining_loss(v):
 
 
 args = get_pretraining_parser()
-print(args.__dict__)
+
 nb_epochs = args.epochs
 val_every = args.val_frequency
 
@@ -54,7 +54,7 @@ optimizer = optim.AdamW(graph_encoder.parameters(), lr=lr,
                             weight_decay=0.01)
 
 #scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.7, patience=1, threshold=1e-4, threshold_mode='rel')
-scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=lr*5,total_steps=nb_epochs* len(train_loader))
+scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=lr*2,total_steps=nb_epochs* len(train_loader))
 
 
 save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')
