@@ -116,7 +116,7 @@ if graph_pretraining:
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01)
 
-    scheduler_pt = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.8, patience=1, threshold=1e-4, threshold_mode='rel')
+    scheduler_pt = optim.lr_scheduler.ReduceLROnPlateau(optimizer_pt, factor=0.8, patience=1, threshold=1e-4, threshold_mode='rel')
 
 
     save_path_ge = os.path.join('./', 'graph_encoder.pt')
