@@ -33,6 +33,12 @@ batch_size = args.batch_size
 
 pt_best_validation_loss = 1_000_000
 
+tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
+
+val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
+train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
+
+
 nout = 768
 num_node_features, nhid, graph_hidden_channels = 300, 300, 300
 graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels).to(device)
