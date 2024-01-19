@@ -50,7 +50,7 @@ train_loader = DataLoader(train_dataset, batch_size=batch_size
                           , shuffle=True, num_workers = 4, pin_memory=True)
 
 
-num_node_features, nhid, graph_hidden_channels = 300, 300, 300
+num_node_features, nhid, graph_hidden_channels = 300, 256, 300
 model = Model(model_name=model_name, num_node_features=num_node_features
               , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels) # nout = model hidden dim
 model.to(device)
@@ -116,8 +116,7 @@ if graph_pretraining:
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01)
 
-    scheduler_pt = optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer_pt, T_0=20, T_mult=2, eta_min=lr_pt*1e-3)
-    
+    scheduler_pt = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.8, patience=1, threshold=1e-4, threshold_mode='rel')
 
 
     save_path_ge = os.path.join('./', 'graph_encoder.pt')
@@ -132,7 +131,6 @@ if graph_pretraining:
     for i in range(nb_epochs_pt):
         
         train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
-        print('Starting epoch ', i+1)
         for j,batch in enumerate(train_loader_pt):
             batch.pop('input_ids')
             batch.pop('attention_mask')
@@ -148,7 +146,6 @@ if graph_pretraining:
             optimizer_pt.zero_grad(set_to_none=True)
             scaler.update()
 
-            scheduler_pt.step(i + j / len(train_loader_pt))
             
 
         print("Epoch ", i+1, "training loss: ", loss_pt)
@@ -186,6 +183,9 @@ if graph_pretraining:
                 torch.save({'graph_encoder_state_dict': graph_encoder.state_dict(),}, save_path_ge)
                 
                 print('checkpoint saved to: {}'.format(save_path_ge))
+
+            scheduler_pt.step(pt_val_loss)
+            
 
 
     model.load_pretrained_graph_encoder(save_path_ge)
