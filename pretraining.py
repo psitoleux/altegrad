@@ -35,6 +35,8 @@ pt_best_validation_loss = 1_000_000
 
 tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
 
+gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
+
 val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
 train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
