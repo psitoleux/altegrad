@@ -115,7 +115,6 @@ if graph_pretraining:
     optimizer_pt = optim.AdamW(graph_encoder.parameters(), lr=lr_pt,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01)
-
     scheduler_pt = optim.lr_scheduler.ReduceLROnPlateau(optimizer_pt, factor=0.8, patience=1, threshold=1e-4, threshold_mode='rel')
 
 
@@ -131,7 +130,7 @@ if graph_pretraining:
     for i in range(nb_epochs_pt):
         
         train_loader_pt = DataLoader(train_dataset, batch_size=batch_size_pt, shuffle=True, num_workers=4, pin_memory=True)
-        for j,batch in enumerate(tqdm(train_loader_pt)):
+        for j,batch in enumerate(train_loader_pt):
             batch.pop('input_ids')
             batch.pop('attention_mask')
 
