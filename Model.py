@@ -112,6 +112,6 @@ class Model(nn.Module):
 
     def load_pretrained_graph_encoder(self, path_pretrained_graph_encoder):
         
-        checkpoint = torch.load(save_path)
+        checkpoint = torch.load(path_pretrained_graph_encoder)
         self.graph_encoder.load_state_dict(checkpoint['graph_encoder_state_dict'])
 
