@@ -30,7 +30,7 @@ else:
     save_path = args.save_path
 
 
-model_name = 'allenai/scibert_scivocab_uncased'
+model_name = 'allenai/scibert_scivocab_uncased'; nout = 768
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
