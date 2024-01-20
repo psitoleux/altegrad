@@ -7,7 +7,7 @@ from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model, GATEncoder
 import numpy as np
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, get_cosine_schedule_with_warmup
 import torch
 from torch import optim
 import time
@@ -52,6 +52,7 @@ num_node_features, nhid, graph_hidden_channels = args.num_node_features, args.nh
 model = Model(model_name=model_name, num_node_features=num_node_features
               , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels) # nout = model hidden dim
 model.to(device)
+
 total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print('Number of trainable parameters in the model: ', total_params) 
 
@@ -59,7 +60,16 @@ scaler = torch.cuda.amp.GradScaler() #scaler : needed for AMP training
 optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01)
+
 #scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*5,total_steps=nb_epochs* len(train_loader))
+
+#scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.7, patience=1, threshold=1e-4, threshold_mode='rel')
+
+total_steps = nb_epochs * len(train_loader)
+scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = total_steps // 10, 
+                                            num_training_steps = total_steps)
+
+
 
 
 dir_name = './'
@@ -128,10 +138,12 @@ for i in range(epoch, epoch+nb_epochs):
         count_iter += 1
         
 
-        if count_iter % accumulation_steps == 0:
-            scaler.step(optimizer)
-            optimizer.zero_grad(set_to_none=True)
-            scaler.update()
+        scaler.step(optimizer)
+        optimizer.zero_grad(set_to_none=True)
+        scaler.update()
+
+        scheduler.step()
+        
 
         if count_iter % printEvery == 0:
             time2 = time.time()
