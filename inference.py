@@ -50,7 +50,10 @@ model.to(device)
 
 
 print('loading best model...')
-checkpoint = torch.load(save_path)
+if device == 'cpu':
+    checkpoint = torch.load(save_path, map_location=torch.device('cpu'))
+else:
+    checkpoint = torch.load(save_path)
 model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()
 
