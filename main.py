@@ -105,10 +105,12 @@ pretrained_graph_encoder = args.pretrained_graph_encoder
 
 
 if pretrained_graph_encoder is not None:
-
+    
+    print('Loading pretrained graph encoder...')
     model.load_pretrained_graph_encoder(pretrained_graph_encoder)
+    print('Done!')
 
-
+aaa += 1
 
 for i in range(epoch, epoch+nb_epochs):
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
