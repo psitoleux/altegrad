@@ -12,7 +12,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 from tqdm.notebook import tqdm
 
-args = get_parser_inference()
+args = get_inference_parser()
 
 
 if args.save_path == '':
