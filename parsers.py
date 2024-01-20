@@ -23,8 +23,10 @@ def get_main_parser():
     parser.add_argument("--lr", type=float, default=4e-5,
                         help="Learning rate (default: 4e-5)")
 
-    parser.add_argument("--epochs", type=int, default=20,
-                        help="Number of training epochs (default: 20)")
+    parser.add_argument("--epochs", type=int, default=15,
+                        help="Number of training epochs (default: 15)")
+    parser.add_argument("--warmup_ratio", type=int, default=5,
+                        help="Share of total iterations dedicated to warmup")
 
     parser.add_argument("--patience", type=int, default=4,
                         help="Patience for early stopping (default: 4)")
