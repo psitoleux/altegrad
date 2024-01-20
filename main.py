@@ -62,13 +62,13 @@ optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01, amsgrad=True)
 
-#scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*5,total_steps=nb_epochs* len(train_loader))
+#scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*5,total_steps=nb_epochs* len(train_loader))
 
-#scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.7, patience=1, threshold=1e-4, threshold_mode='rel')
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=1, threshold=1e-4, threshold_mode='rel')
 
-total_steps = nb_epochs * len(train_loader)
-scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = total_steps // args.warmup_ratio, 
-                                            num_training_steps = total_steps)
+#total_steps = nb_epochs * len(train_loader)
+#scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = total_steps // args.warmup_ratio, 
+#                                            num_training_steps = total_steps)
 
 
 
@@ -145,9 +145,8 @@ for i in range(epoch, epoch+nb_epochs):
         optimizer.zero_grad(set_to_none=True)
         scaler.update()
 
-        scheduler.step()
+        #scheduler.step()
         
-
         if count_iter % printEvery == 0:
             time2 = time.time()
             print("Iteration: {0}, Time: {1:.4f} s, training loss: {2:.4f}".format(count_iter,
@@ -174,7 +173,9 @@ for i in range(epoch, epoch+nb_epochs):
             
             val_loss += current_loss.item()
     best_validation_loss = min(best_validation_loss, val_loss)
-
+    
+    scheduler.step(val_loss) #for reduce LR on plateau
+    
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', str(val_loss/len(val_loader)) )
     if best_validation_loss==val_loss:
         print('validation loss improved saving checkpoint...')
