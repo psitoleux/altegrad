@@ -63,4 +63,4 @@ def get_inference_parser():
     parser.add_argument("-sp", "--save_path", type=str, help="Path to saved model.", default="")
     parser.add_argument("-bs", "--batch_size", type=int, help="Batch size during inference.", default=80)
 
-    return parser.parser_args()
+    return parser.parse_args()
