@@ -56,7 +56,7 @@ def get_pretraining_parser():
 
     return parser.parse_args()
 
-def get_parser_inference():
+def get_inference_parser():
     """Create an argument parser for inference."""
     parser = argparse.ArgumentParser(description="Inference Parameters")
 

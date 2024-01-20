@@ -200,7 +200,7 @@ for i in range(epoch, epoch+nb_epochs):
         j += 1
         if patience-j > 1:
             print('validation loss has not improved, ', patience - j, ' epochs before early stopping')
-        elif early_stopping - j == 1:
+        elif patience - j == 1:
                 print('validation loss has not improved, one epoch before early stopping')
         elif j == patience:
             if j == patience: # if val loss doesn't improve after patience epochs, stop training

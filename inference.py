@@ -10,6 +10,7 @@ import pandas as pd
 from parsers import get_inference_parser
 from sklearn.metrics.pairwise import cosine_similarity
 
+from tqdm.notebook import tqdm
 
 args = get_parser_inference()
 
@@ -69,14 +70,14 @@ with torch.no_grad():
 
     print('Creating test graph embeddings...')
     graph_embeddings = []
-    for batch in test_loader:
+    for batch in tqdm(test_loader):
         for output in graph_model(batch.to(device)):
             graph_embeddings.append(output.tolist())
 
     test_text_loader = TorchDataLoader(test_text_dataset, batch_size=batch_size, shuffle=False)
     print('Creating test text embeddings...')
     text_embeddings = []
-    for batch in test_text_loader:
+    for batch in tqdm(test_text_loader):
         for output in text_model(batch['input_ids'].to(device), 
                              attention_mask=batch['attention_mask'].to(device)):
             text_embeddings.append(output.tolist())
