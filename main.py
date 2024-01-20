@@ -59,7 +59,7 @@ print('Number of trainable parameters in the model: ', total_params)
 scaler = torch.cuda.amp.GradScaler() #scaler : needed for AMP training
 optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
-                                weight_decay=0.01)
+                                weight_decay=0.01, amsgrad=True)
 
 #scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*5,total_steps=nb_epochs* len(train_loader))
 
@@ -110,7 +110,7 @@ if pretrained_graph_encoder is not None:
     model.load_pretrained_graph_encoder(pretrained_graph_encoder)
     print('Done!')
 
-aaa += 1
+
 
 for i in range(epoch, epoch+nb_epochs):
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
