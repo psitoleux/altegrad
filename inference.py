@@ -7,6 +7,8 @@ from Model import Model
 
 import os
 import pandas as pd
+import numpy as np
+
 from parsers import get_inference_parser
 from sklearn.metrics.pairwise import cosine_similarity
 
