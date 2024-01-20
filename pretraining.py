@@ -56,7 +56,7 @@ graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
 scaler = torch.cuda.amp.GradScaler()
 optimizer = optim.AdamW(graph_encoder.parameters(), lr=lr,
                             betas=(0.9, 0.999),
-                            weight_decay=0.01)
+                            weight_decay=args.weight_decay)
 
 total_steps = nb_epochs * len(train_loader)
 #scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.7, patience=1, threshold=1e-4, threshold_mode='rel')
