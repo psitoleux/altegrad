@@ -55,3 +55,13 @@ def get_pretraining_parser():
 
 
     return parser.parse_args()
+
+def get_parser_inference():
+    """Create an argument parser for inference."""
+    parser = argparse.ArgumentParser(description="Inference Parameters")
+
+    parser.add_argument("-sp", "--save_path", type=str, help="Path to saved model.", default="")
+    parser.add_argument("-bs", "--batch_size", type=int, help="Batch size during inference.", default=80)
+    parser.add_argument("-d", "--device", type=str, help="Device to run computations.", default="cuda" if torch.cuda.is_available() else "cpu")
+
+    return parser.parser_args()

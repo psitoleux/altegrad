@@ -57,6 +57,8 @@ total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 print('Number of trainable parameters in the model: ', total_params) 
 
 scaler = torch.cuda.amp.GradScaler() #scaler : needed for AMP training
+
+learning_rate = learning_rate*1.5
 optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01, amsgrad=True)
@@ -66,7 +68,7 @@ optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
 #scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.7, patience=1, threshold=1e-4, threshold_mode='rel')
 
 total_steps = nb_epochs * len(train_loader)
-scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = total_steps // 10, 
+scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = total_steps // 4, 
                                             num_training_steps = total_steps)
 
 

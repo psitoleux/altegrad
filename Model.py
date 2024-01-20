@@ -8,6 +8,8 @@ from transformers import AutoModel
 
 
 
+
+
 class GraphEncoder(nn.Module):
     def __init__(self, num_node_features, nout, nhid, graph_hidden_channels):
         super(GraphEncoder, self).__init__()
