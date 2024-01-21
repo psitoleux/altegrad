@@ -63,8 +63,8 @@ class GCNEncoder(GraphEncoder):
         return x
 
 
-class GATEncoder(GraphEncoder):
-    def __init__ (self, num_node_features, nout, nhid, graph_hidden_channels,n_layers = 3):
+class GATEncoder(GraphEncoder):n
+    def __init__ (self, num_node_features, nout,  nhid, graph_hidden_channels,n_layers = 3):
         GraphEncoder.__init__(self,num_node_features, nout, nhid, graph_hidden_channels)
         
         self.layers = []
@@ -75,7 +75,7 @@ class GATEncoder(GraphEncoder):
         
         self.layers = nn.ModuleList(self.layers)
 
-    def forward(self, graph_batch):
+    def forward(self, graph_batch): 
 
         x, edge_index, batch = self.get_batch(graph_batch)
         for layer in self.layers:
@@ -92,8 +92,9 @@ class TextEncoder(nn.Module):
     def __init__(self, model_name):
         super(TextEncoder, self).__init__()
         self.bert = AutoModel.from_pretrained(model_name)
+        self.
         
-    def forward(self, input_ids, attention_mask):
+    def forward(self, input_ids, attention_mask): 
         encoded_text = self.bert(input_ids, attention_mask=attention_mask)
         #print(encoded_text.last_hidden_state.size())
         return encoded_text.last_hidden_state[:,0,:]

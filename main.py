@@ -7,7 +7,7 @@ from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model, GATEncoder
 import numpy as np
-from transformers import AutoTokenizer, get_cosine_schedule_with_warmup
+from transformers import AutoTokenizer, get_cosine_schedule_with_warmup,get_cosine_with_hard_restarts_schedule_with_warmup
 import torch
 from torch import optim
 import time
@@ -67,8 +67,9 @@ optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=1, threshold=1e-4, threshold_mode='rel')
 
 #total_steps = nb_epochs * len(train_loader)
-#scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = total_steps // args.warmup_ratio, 
+#scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*(total_steps // nb_epochs), 
 #                                            num_training_steps = total_steps)
+scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs* total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = 3)
 
 
 
@@ -198,6 +199,10 @@ for i in range(epoch, epoch+nb_epochs):
         j = 0
     else:
         j += 1
+        
+        checkpoint = torch.load(save_path)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        
         if patience-j > 1:
             print('validation loss has not improved, ', patience - j, ' epochs before early stopping')
         elif patience - j == 1:

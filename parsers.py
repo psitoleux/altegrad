@@ -25,8 +25,10 @@ def get_main_parser():
 
     parser.add_argument("--epochs", type=int, default=15,
                         help="Number of training epochs (default: 15)")
-    parser.add_argument("--warmup_ratio", type=int, default=5,
-                        help="Share of total iterations dedicated to warmup")
+    parser.add_argument("--warmup_epochs", type=int, default=2,
+                        help="Number of epochs dedicated to warmup (default=2)")
+    parser.add_argument("--nb_cycles", type=int, default=3,
+                        help="Number of cycles for relevant schedulers")
 
     parser.add_argument("--patience", type=int, default=4,
                         help="Patience for early stopping (default: 4)")
