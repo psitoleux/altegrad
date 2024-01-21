@@ -101,7 +101,7 @@ class TextEncoder(nn.Module):
                 if i in np.arange(len(nparams_list))[:6]:  
                     p.requires_grad = False
 
-        elif trainable_layers == 'output_layers':
+        elif trainable_layers == 'output':
             for i,p in enumerate(self.bert.parameters()):
                 if i not in np.arange(len(nparams_list))[-8:]:
                     p.requires_grad = False
