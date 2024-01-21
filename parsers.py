@@ -55,6 +55,14 @@ def get_pretraining_parser():
     parser.add_argument("--lr", type=float, default=0.01,
                         help="Learning rate for pre-training (default: 0.01)")
 
+    parser.add_argument("--num_node_features", type=int, default=300,
+                        help="Number of node features (default: 300)")
+    parser.add_argument("--nhid", type=int, default=300,
+                        help="Hidden layer dimension (default: 300)")
+    parser.add_argument("--graph_hidden_channels", type=int, default=300,
+                        help="Number of channels in graph hidden layers (default: 300)")
+    
+
     parser.add_argument("--warmup_epochs", type=int, default=2,
                         help="Number of epochs dedicated to warmup (default=2)")
     parser.add_argument("--nb_cycles", type=int, default=3,
