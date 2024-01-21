@@ -55,6 +55,10 @@ graph_hidden_channels = args.graph_hidden_channels
 
 graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels).to(device)
 
+total_params = sum(p.numel() for p in graph_encoder.parameters() if p.requires_grad)
+print('Number of trainable parameters in the model: ', total_params) 
+
+
 scaler = torch.cuda.amp.GradScaler()
 optimizer = optim.AdamW(graph_encoder.parameters(), lr=lr,
                             betas=(0.9, 0.999),
