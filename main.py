@@ -156,7 +156,8 @@ for i in range(epoch, epoch+nb_epochs):
         optimizer.zero_grad(set_to_none=True)
         scaler.update()
 
-        scheduler.step()
+        if scheduler_name in ['one_cycle',  'cosine_warmup', 'cosine_warmup_restarts']:
+            scheduler.step()
         
         if count_iter % printEvery == 0:
             time2 = time.time()
@@ -185,7 +186,8 @@ for i in range(epoch, epoch+nb_epochs):
             val_loss += current_loss.item()
     best_validation_loss = min(best_validation_loss, val_loss)
     
-    #scheduler.step(val_loss) #for reduce LR on plateau
+    if scheduler_name == 'reduce_on_plateau':
+        scheduler.step(val_loss) #for reduce LR on plateau
     
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', str(val_loss/len(val_loader)) )
     if best_validation_loss==val_loss:
