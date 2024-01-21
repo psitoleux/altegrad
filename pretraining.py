@@ -48,7 +48,11 @@ val_loader = DataLoader(val_dataset, batch_size=1, shuffle=True, num_workers=4, 
 val_loader = DataLoader(val_dataset, batch_size=len(val_loader), shuffle=True, num_workers=4, pin_memory=True)
 
 nout = 768
-num_node_features, nhid, graph_hidden_channels = 300, 300, 300
+num_node_features = args.num_node_features
+nhid = args.nhid
+graph_hidden_channels = args.graph_hidden_channels
+
+
 graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels).to(device)
 
 scaler = torch.cuda.amp.GradScaler()
@@ -62,15 +66,17 @@ total_steps = nb_epochs * len(train_loader)
 
 #scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=lr*2,total_steps=nb_epochs* len(train_loader))
 
+scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps)
+
 #scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = args.nb_cycles)
 
 
 
-nb_epochs_per_cycle = nb_epochs // args.nb_cycles
-step_size_up = len(train_loader) * nb_epochs_per_cycle
+#nb_epochs_per_cycle = nb_epochs // args.nb_cycles
+#step_size_up = len(train_loader) * nb_epochs_per_cycle
 
-scheduler = optim.lr_scheduler.CyclicLR(optimizer, base_lr=lr / 100, max_lr=lr, step_size_up=step_size_up, mode='triangular2'
-                                        , cycle_momentum = False)
+#scheduler = optim.lr_scheduler.CyclicLR(optimizer, base_lr=lr / 100, max_lr=lr, step_size_up=step_size_up, mode='triangular2'
+#                                        , cycle_momentum = False)
 
 save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')
 
