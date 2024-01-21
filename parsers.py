@@ -27,7 +27,7 @@ def get_main_parser():
                         help="Learning rate (default: 4e-5)")
     parser.add_argument("--epochs", type=int, default=15,
                         help="Number of training epochs (default: 15)")
-    parser.add_argument("--scheduler", type=str, defaul='',
+    parser.add_argument("--scheduler", type=str, default='',
                         help="Learning rate scheduler (default : '')")
     
     parser.add_argument("--warmup_epochs", type=int, default=2,
