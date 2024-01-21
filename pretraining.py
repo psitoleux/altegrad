@@ -47,8 +47,6 @@ val_loader = DataLoader(val_dataset, batch_size=1, shuffle=True, num_workers=4, 
 
 val_loader = DataLoader(val_dataset, batch_size=len(val_loader), shuffle=True, num_workers=4, pin_memory=True)
 
-print(len(val_loader))
-
 nout = 768
 num_node_features, nhid, graph_hidden_channels = 300, 300, 300
 graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels).to(device)
@@ -60,11 +58,11 @@ optimizer = optim.AdamW(graph_encoder.parameters(), lr=lr,
                         amsgrad = True)
 
 total_steps = nb_epochs * len(train_loader)
-#scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.7, patience=1, threshold=1e-4, threshold_mode='rel')
+scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=2, threshold=1e-4, threshold_mode='rel')
+
 #scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=lr*2,total_steps=nb_epochs* len(train_loader))
 
-scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = total_steps // 10, 
-                                            num_training_steps = total_steps)
+#scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = total_steps // 10,  num_training_steps = total_steps)
 
 save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')
 
@@ -92,8 +90,6 @@ for i in range(nb_epochs):
         scaler.step(optimizer)
         optimizer.zero_grad(set_to_none=True)
         scaler.update()
-
-        scheduler.step()
 
         
 
@@ -136,6 +132,6 @@ for i in range(nb_epochs):
             k += 1
         if k == patience:
             break
-        #scheduler.step(val_loss)
+        scheduler.step(val_loss)
         
 

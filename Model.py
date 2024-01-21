@@ -16,14 +16,17 @@ class GraphEncoder(nn.Module):
         self.nhid = nhid
         self.nout = nout
         self.relu = nn.ReLU()
-        self.ln = nn.LayerNorm((nout))
 
-        self.mol_hidden1 = nn.Linear(graph_hidden_channels, nhid)
-        self.mol_hidden2 = nn.Linear(nhid, nout)        
+        self.ln_hid = nn.LayerNorm((nhid))
+        self.ln_out = nn.LayerNorm((nout))
+
+
+        self.mol_hidden1 = nn.Linear(graph_hidden_channels, nhid, bias = False)
+        self.mol_hidden2 = nn.Linear(nhid, nout, bias = False)
 
     def mlp(self, x):
-        x = self.mol_hidden1(x).relu()
-        x = self.mol_hidden2(x)
+        x = self.ln_hid(self.mol_hidden1(x).relu())
+        x = self.ln_out(self.mol_hidden2(x))
 
         return x
 
