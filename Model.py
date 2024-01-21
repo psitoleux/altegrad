@@ -93,7 +93,7 @@ class TextEncoder(nn.Module):
         super(TextEncoder, self).__init__()
         self.bert = AutoModel.from_pretrained(model_name)
 
-        nparams_list = [(p.numel()) for p in model.parameters() if p.requires_grad]
+        nparams_list = [(p.numel()) for p in self.bert.parameters() if p.requires_grad]
 
 
         if trainable_layers == 'all_but_embeddings':
