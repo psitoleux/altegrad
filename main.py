@@ -42,13 +42,15 @@ patience = args.patience
 
 
 val_loader = DataLoader(val_dataset, batch_size=batch_size # num_workers = 4 + pin_memory = True supposed to speed up things
-                        , shuffle=True, num_workers = 4, pin_memory=True)
+                        , shuffle=True, num_workers = 4, pin_memory=True).to(device)
 train_loader = DataLoader(train_dataset, batch_size=batch_size
-                          , shuffle=True, num_workers = 4, pin_memory=True)
+                          , shuffle=True, num_workers = 4, pin_memory=True).to(device)
 
 
 num_node_features, nhid, graph_hidden_channels = args.num_node_features, args.nhid, args.graph_hidden_channels
 trainable = args.trainable
+
+print(trainable)
 
 model = Model(model_name=model_name, num_node_features=num_node_features
               , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels,
@@ -67,6 +69,8 @@ optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
 scheduler_name = args.scheduler.lower()
 
 total_steps = nb_epochs * len(train_loader)
+
+print(scheduler_name)
 
 if scheduler_name == 'reduce_on_plateau':
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=2, threshold=1e-4, threshold_mode='rel')
@@ -137,9 +141,9 @@ for i in range(epoch, epoch+nb_epochs):
 
 
         with torch.cuda.amp.autocast(): # mixed precision 
-            x_graph, x_text = model(graph_batch.to(device), 
-                                input_ids.to(device), 
-                                attention_mask.to(device))
+            x_graph, x_text = model(graph_batch, 
+                                input_ids, 
+                                attention_mask)
             current_loss = info_nce_loss(x_graph, x_text) 
 
         scaler.scale(current_loss).backward()

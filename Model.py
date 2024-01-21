@@ -6,6 +6,8 @@ from torch_geometric.nn import GCNConv, GATv2Conv
 from torch_geometric.nn import global_mean_pool
 from transformers import AutoModel
 
+import numpy as np
+
 
 
 
@@ -89,19 +91,17 @@ class GATEncoder(GraphEncoder):
 
     
 class TextEncoder(nn.Module):
-    def __init__(self, model_name, trainable_layers = 'all'):
+    def __init__(self, model_name, trainable_layers):
         super(TextEncoder, self).__init__()
         self.bert = AutoModel.from_pretrained(model_name)
 
         nparams_list = [(p.numel()) for p in self.bert.parameters() if p.requires_grad]
-
 
         if trainable_layers == 'all_but_embeddings':
             print('Not training embedding layer')
             for i,p in enumerate(self.bert.parameters()):
                 if i in np.arange(len(nparams_list))[:6]:  
                     p.requires_grad = False
-
         elif trainable_layers == 'output':
             print('Only training output layers')
             for i,p in enumerate(self.bert.parameters()):
@@ -115,9 +115,9 @@ class TextEncoder(nn.Module):
         return encoded_text.last_hidden_state[:,0,:]
     
 class Model(nn.Module):
-    def __init__(self, model_name, num_node_features, nout, nhid, graph_hidden_channels, trainable = 'all'):
+    def __init__(self, model_name, num_node_features, nout, nhid, graph_hidden_channels, trainable):
         super(Model, self).__init__()
-        self.graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
+        self.graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels, trainable)
         self.text_encoder = TextEncoder(model_name)
         
     def forward(self, graph_batch, input_ids, attention_mask):
