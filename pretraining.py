@@ -69,7 +69,8 @@ total_steps = nb_epochs * len(train_loader)
 nb_epochs_per_cycle = nb_epochs // args.nb_cycles
 step_size_up = len(train_loader) * nb_epochs_per_cycle
 
-scheduler = optim.lr_scheduler.CyclicLR(optimizer, base_lr=lr / 100, max_lr=lr, step_size_up=step_size_up, mode='triangular2')
+scheduler = optim.lr_scheduler.CyclicLR(optimizer, base_lr=lr / 100, max_lr=lr, step_size_up=step_size_up, mode='triangular2'
+                                        , cycle_momentum = True)
 
 save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')
 
