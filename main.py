@@ -29,8 +29,8 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
 
-val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
-train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
+val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer).to(device)
+train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer).to(device)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -42,9 +42,9 @@ patience = args.patience
 
 
 val_loader = DataLoader(val_dataset, batch_size=batch_size # num_workers = 4 + pin_memory = True supposed to speed up things
-                        , shuffle=True, num_workers = 4, pin_memory=True).to(device)
+                        , shuffle=True, num_workers = 4, pin_memory=True)
 train_loader = DataLoader(train_dataset, batch_size=batch_size
-                          , shuffle=True, num_workers = 4, pin_memory=True).to(device)
+                          , shuffle=True, num_workers = 4, pin_memory=True)
 
 
 num_node_features, nhid, graph_hidden_channels = args.num_node_features, args.nhid, args.graph_hidden_channels
