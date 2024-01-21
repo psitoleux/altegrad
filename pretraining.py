@@ -62,7 +62,14 @@ total_steps = nb_epochs * len(train_loader)
 
 #scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=lr*2,total_steps=nb_epochs* len(train_loader))
 
-scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = args.nb_cycles)
+#scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = args.nb_cycles)
+
+
+
+nb_epochs_per_cycle = nb_epochs // args.nb_cycles
+step_size_up = len(train_loader) * nb_epochs_per_cycle
+
+scheduler = optim.lr_scheduler.CyclicLR(optimizer, base_lr=lr / 100, max_lr=lr, step_size_up=step_size_up, mode='triangular2')
 
 save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')
 
