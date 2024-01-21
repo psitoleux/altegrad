@@ -1,7 +1,7 @@
 from dataloader import GraphTextDataset, GraphDataset, TextDataset
 from loss import info_nce_loss
 from info_nce import InfoNCE
-from transformers import AutoTokenizer, get_cosine_schedule_with_warmup
+from transformers import AutoTokenizer, get_cosine_schedule_with_warmup, get_cosine_with_hard_restarts_schedule_with_warmup
 from torch_geometric.loader import DataLoader
 from torch.utils.data import DataLoader as TorchDataLoader
 from Model import Model, GATEncoder
@@ -62,7 +62,7 @@ total_steps = nb_epochs * len(train_loader)
 
 #scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=lr*2,total_steps=nb_epochs* len(train_loader))
 
-scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = total_steps // 10,  num_training_steps = total_steps)
+scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = total_steps // nb_epochs * 5,  num_training_steps = total_steps, num_cycles = 5)
 
 save_path_ge = os.path.join('./pretrained/', 'graph_encoder.pt')
 
