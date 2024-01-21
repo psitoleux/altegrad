@@ -63,7 +63,7 @@ class GCNEncoder(GraphEncoder):
         return x
 
 
-class GATEncoder(GraphEncoder):n
+class GATEncoder(GraphEncoder):
     def __init__ (self, num_node_features, nout,  nhid, graph_hidden_channels,n_layers = 3):
         GraphEncoder.__init__(self,num_node_features, nout, nhid, graph_hidden_channels)
         

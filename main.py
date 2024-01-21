@@ -69,7 +69,7 @@ scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience
 #total_steps = nb_epochs * len(train_loader)
 #scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*(total_steps // nb_epochs), 
 #                                            num_training_steps = total_steps)
-scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs* total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = 3)
+scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs* total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = args.nb_cycles)
 
 
 
@@ -146,7 +146,7 @@ for i in range(epoch, epoch+nb_epochs):
         optimizer.zero_grad(set_to_none=True)
         scaler.update()
 
-        #scheduler.step()
+        scheduler.step()
         
         if count_iter % printEvery == 0:
             time2 = time.time()
@@ -175,7 +175,7 @@ for i in range(epoch, epoch+nb_epochs):
             val_loss += current_loss.item()
     best_validation_loss = min(best_validation_loss, val_loss)
     
-    scheduler.step(val_loss) #for reduce LR on plateau
+    #scheduler.step(val_loss) #for reduce LR on plateau
     
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', str(val_loss/len(val_loader)) )
     if best_validation_loss==val_loss:
