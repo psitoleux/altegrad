@@ -97,11 +97,13 @@ class TextEncoder(nn.Module):
 
 
         if trainable_layers == 'all_but_embeddings':
+            print('Not training embedding layer')
             for i,p in enumerate(self.bert.parameters()):
                 if i in np.arange(len(nparams_list))[:6]:  
                     p.requires_grad = False
 
         elif trainable_layers == 'output':
+            print('Only training output layers')
             for i,p in enumerate(self.bert.parameters()):
                 if i not in np.arange(len(nparams_list))[-8:]:
                     p.requires_grad = False
