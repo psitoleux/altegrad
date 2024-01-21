@@ -48,11 +48,11 @@ train_loader = DataLoader(train_dataset, batch_size=batch_size
 
 
 num_node_features, nhid, graph_hidden_channels = args.num_node_features, args.nhid, args.graph_hidden_channels
-trainable_layers = args.trainable
+trainable = args.trainable
 
 model = Model(model_name=model_name, num_node_features=num_node_features
               , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels,
-              trainable_layers=trainable_layers) # nout = model hidden dim
+              trainable=trainable_layers) # nout = model hidden dim
 model.to(device)
 
 total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
