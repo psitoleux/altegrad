@@ -53,8 +53,8 @@ trainable = args.trainable
 print(trainable)
 
 model = Model(model_name=model_name, num_node_features=num_node_features
-              , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels,
-              trainable=trainable) # nout = model hidden dim
+              , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels) # nout = model hidden dim
+model.set_trainable_layers(trainable)
 model.to(device)
 
 total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
