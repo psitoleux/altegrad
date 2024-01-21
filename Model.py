@@ -89,9 +89,23 @@ class GATEncoder(GraphEncoder):
 
     
 class TextEncoder(nn.Module):
-    def __init__(self, model_name):
+    def __init__(self, model_name, trainable_layers = 'all'):
         super(TextEncoder, self).__init__()
         self.bert = AutoModel.from_pretrained(model_name)
+
+        nparams_list = [(p.numel()) for p in model.parameters() if p.requires_grad]
+
+
+        if trainable_layers == 'all_but_embeddings':
+            for i,p in enumerate(self.bert.parameters()):
+                if i in np.arange(len(nparams_list))[:6]:  
+                    p.requires_grad = False
+
+        elif trainable_layers == 'output_layers':
+            for i,p in enumerate(self.bert.parameters()):
+                if i not in np.arange(len(nparams_list))[-8:]:
+                    p.requires_grad = False
+
         
     def forward(self, input_ids, attention_mask): 
         encoded_text = self.bert(input_ids, attention_mask=attention_mask)
@@ -99,7 +113,7 @@ class TextEncoder(nn.Module):
         return encoded_text.last_hidden_state[:,0,:]
     
 class Model(nn.Module):
-    def __init__(self, model_name, num_node_features, nout, nhid, graph_hidden_channels):
+    def __init__(self, model_name, num_node_features, nout, nhid, graph_hidden_channels, trainable = 'all'):
         super(Model, self).__init__()
         self.graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
         self.text_encoder = TextEncoder(model_name)

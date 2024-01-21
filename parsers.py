@@ -15,6 +15,9 @@ def get_main_parser():
     parser.add_argument("--graph_hidden_channels", type=int, default=300,
                         help="Number of channels in graph hidden layers (default: 300)")
 
+    parser.add_argument("--trainable", type=str, default='all',
+                        help="Select which layers of text encoder are trainable (default: 'all')")
+
     parser.add_argument("--batch_size", type=int, default=64,
                         help="Batch size per GPU (default: 64)")
     parser.add_argument("--target_batch_size", type=int, default=64,
@@ -22,9 +25,11 @@ def get_main_parser():
 
     parser.add_argument("--lr", type=float, default=4e-5,
                         help="Learning rate (default: 4e-5)")
-
     parser.add_argument("--epochs", type=int, default=15,
                         help="Number of training epochs (default: 15)")
+    parser.add_argument("--scheduler", type=str, defaul='',
+                        help="Learning rate scheduler (default : '')")
+    
     parser.add_argument("--warmup_epochs", type=int, default=2,
                         help="Number of epochs dedicated to warmup (default=2)")
     parser.add_argument("--nb_cycles", type=int, default=3,

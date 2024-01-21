@@ -48,9 +48,11 @@ train_loader = DataLoader(train_dataset, batch_size=batch_size
 
 
 num_node_features, nhid, graph_hidden_channels = args.num_node_features, args.nhid, args.graph_hidden_channels
+trainable_layers = args.trainable
 
 model = Model(model_name=model_name, num_node_features=num_node_features
-              , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels) # nout = model hidden dim
+              , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels,
+              trainable_layers=trainable_layers) # nout = model hidden dim
 model.to(device)
 
 total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -62,14 +64,18 @@ optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01, amsgrad=True)
 
-#scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*5,total_steps=nb_epochs* len(train_loader))
+scheduler_name = args.scheduler.lower()
 
-scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=1, threshold=1e-4, threshold_mode='rel')
+total_steps = nb_epochs * len(train_loader)
 
-#total_steps = nb_epochs * len(train_loader)
-#scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*(total_steps // nb_epochs), 
-#                                            num_training_steps = total_steps)
-scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs* total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = args.nb_cycles)
+if scheduler_name == 'reduce_on_plateau':
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=2, threshold=1e-4, threshold_mode='rel')
+elif scheduler_name == 'one_cycle':
+    scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*2,total_steps=nb_epochs* len(train_loader))
+elif scheduler_name == 'cosine_warmup':
+    scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps)
+elif scheduler_name == 'cosine_warmup_restarts':
+    scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = args.nb_cycles)
 
 
 
