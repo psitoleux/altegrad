@@ -29,8 +29,8 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
 
-val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer).to(device)
-train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer).to(device)
+val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
+train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -141,9 +141,9 @@ for i in range(epoch, epoch+nb_epochs):
 
 
         with torch.cuda.amp.autocast(): # mixed precision 
-            x_graph, x_text = model(graph_batch, 
-                                input_ids, 
-                                attention_mask)
+            x_graph, x_text = model(graph_batch.to(device), 
+                                input_ids.to(device), 
+                                attention_mask.to(device))
             current_loss = info_nce_loss(x_graph, x_text) 
 
         scaler.scale(current_loss).backward()
