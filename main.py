@@ -20,7 +20,7 @@ from tqdm import tqdm, trange
 
 args= get_main_parser()
 
-
+pin_memory = False
 
 model_name = args.model_name
 nout = args.nout
@@ -44,9 +44,9 @@ epoch_finetune = args.epoch_finetune -1
 
 
 val_loader = DataLoader(val_dataset, batch_size=batch_size # num_workers = 4 + pin_memory = True supposed to speed up things
-                        , shuffle=True, num_workers = 4, pin_memory=True)
+                        , shuffle=True, num_workers = 4, pin_memory=pin_memory)
 train_loader = DataLoader(train_dataset, batch_size=batch_size
-                          , shuffle=True, num_workers = 4, pin_memory=True)
+                          , shuffle=True, num_workers = 4, pin_memory=pin_memory)
 
 
 num_node_features, nhid, graph_hidden_channels = args.num_node_features, args.nhid, args.graph_hidden_channels
@@ -135,7 +135,7 @@ if pretrained_graph_encoder is not None:
 
 
 for i in range(epoch, epoch+nb_epochs):
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=pin_memory)
     print('-----EPOCH{}-----'.format(i+1))
     optimizer.zero_grad(set_to_none=True)
     model.train()
@@ -248,7 +248,7 @@ for i in range(epoch, epoch+nb_epochs):
                                 weight_decay=0.01, amsgrad=True)
 
         batch_size = new_batch_size
-        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
+        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=pin_memory)
         scheduler = get_scheduler(scheduler_name) 
 
         best_validation_loss = val_loss = 1_000_000
