@@ -64,9 +64,6 @@ print('Number of trainable parameters in the model: ', total_params)
 
 scaler = torch.cuda.amp.GradScaler() #scaler : needed for AMP training
 
-optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
-                                betas=(0.9, 0.999),
-                                weight_decay=0.01, amsgrad=True)
 
 scheduler_name = args.scheduler.lower()
 
@@ -85,9 +82,6 @@ def get_scheduler(scheduler_name):
         scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = args.nb_cycles)
 
     return scheduler
-
-scheduler = get_scheduler(scheduler_name)
-print('test: ', scheduler.optimizer.param_groups[0]['lr'])
 
 
 dir_name = './'
@@ -108,6 +102,12 @@ if len(chkpt) != 0:
   loss = checkpoint['loss']
   model.set_trainable_layers(trainable)
   print('Done!')
+
+optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
+                                betas=(0.9, 0.999),
+                                weight_decay=0.01, amsgrad=True)
+
+scheduler = get_scheduler(scheduler_name)
 
 
 loss = 0
