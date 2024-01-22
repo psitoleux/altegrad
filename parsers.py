@@ -29,6 +29,8 @@ def get_main_parser():
                         help="Number of training epochs (default: 15)")
     parser.add_argument("--scheduler", type=str, default='',
                         help="Learning rate scheduler (default : '')")
+    parser.add_argument("--epoch_finetune", type=int, default=-1,
+                        help="Epoch at which to toggle finetuning of only last layers in BERT (default: -1)")
     
     parser.add_argument("--warmup_epochs", type=int, default=2,
                         help="Number of epochs dedicated to warmup (default=2)")

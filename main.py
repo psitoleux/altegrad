@@ -40,6 +40,8 @@ accumulation_steps = target_batch_size // batch_size
 learning_rate = args.lr
 patience = args.patience
 
+epoch_finetune = args.epoch_finetue -1
+
 
 val_loader = DataLoader(val_dataset, batch_size=batch_size # num_workers = 4 + pin_memory = True supposed to speed up things
                         , shuffle=True, num_workers = 4, pin_memory=True)
@@ -70,17 +72,21 @@ scheduler_name = args.scheduler.lower()
 
 total_steps = nb_epochs * len(train_loader)
 
-print(scheduler_name)
 
-if scheduler_name == 'reduce_on_plateau':
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=2, threshold=1e-4, threshold_mode='rel')
-elif scheduler_name == 'one_cycle':
-    scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*2,total_steps=nb_epochs* len(train_loader))
-elif scheduler_name == 'cosine_warmup':
-    scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps)
-elif scheduler_name == 'cosine_warmup_restarts':
-    scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = args.nb_cycles)
+def get_scheduler(scheduler_name):
 
+    if scheduler_name == 'reduce_on_plateau':
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=2, threshold=1e-4, threshold_mode='rel')
+    elif scheduler_name == 'one_cycle':
+        scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*2,total_steps=nb_epochs* len(train_loader))
+    elif scheduler_name == 'cosine_warmup':
+        scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps)
+    elif scheduler_name == 'cosine_warmup_restarts':
+        scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = args.nb_cycles)
+
+    return scheduler
+
+scheduler = get_scheduler(scheduler_name)
 
 
 
@@ -99,7 +105,8 @@ if len(chkpt) != 0:
   model.load_state_dict(checkpoint['model_state_dict'])
   optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
   epoch = checkpoint['epoch']
-  loss = checkpoint['loss']  
+  loss = checkpoint['loss']
+  model.set_trainable_layers(trainable)
   print('Done!')
 
 
@@ -187,8 +194,8 @@ for i in range(epoch, epoch+nb_epochs):
     best_validation_loss = min(best_validation_loss, val_loss)
     
     if scheduler_name == 'reduce_on_plateau':
-        scheduler.step(val_loss) #for reduce LR on plateau
-    
+        scheduler.step(val_loss) 
+
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', str(val_loss/len(val_loader)) )
     if best_validation_loss==val_loss:
         print('validation loss improved saving checkpoint...')
@@ -209,7 +216,7 @@ for i in range(epoch, epoch+nb_epochs):
         }, save_path)
         print('checkpoint saved to: {}'.format(save_path))
         j = 0
-    else:
+    elif i != epoch_finetune:
         j += 1
         
         checkpoint = torch.load(save_path)
@@ -223,6 +230,18 @@ for i in range(epoch, epoch+nb_epochs):
             if j == patience: # if val loss doesn't improve after patience epochs, stop training
                 print('validation loss has not improved in ', patience, ' epoch(s), we stop training')
                 break
+    if i == epoch_finetune:
+        model.set_trainable_layers('output')
+        optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
+                                betas=(0.9, 0.999),
+                                weight_decay=0.01, amsgrad=True)
+
+        batch_size = 512
+        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
+        scheduler = get_scheduler(scheduler_name)
+
+        val_loss = 1_000_000 # insure we do at least 1 step of 
+        
 
 
 torch.cuda.empty_cache()
