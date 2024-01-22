@@ -231,6 +231,7 @@ for i in range(epoch, epoch+nb_epochs):
                 print('validation loss has not improved in ', patience, ' epoch(s), we stop training')
                 break
     if i == epoch_finetune:
+        print("Full tranining done! Finetuning last BERT layers")
         model.set_trainable_layers('output')
         optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
