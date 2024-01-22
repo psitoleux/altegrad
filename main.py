@@ -56,7 +56,7 @@ print(trainable)
 
 model = Model(model_name=model_name, num_node_features=num_node_features
               , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels) # nout = model hidden dim
-model.set_trainable_layers(trainable)
+model.text_encoder.set_trainable_layers(trainable)
 model.to(device)
 
 total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -232,7 +232,7 @@ for i in range(epoch, epoch+nb_epochs):
                 break
     if i == epoch_finetune:
         print("Full tranining done! Finetuning last BERT layers")
-        model.set_trainable_layers('output')
+        model.text_encoder.set_trainable_layers('output')
         optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01, amsgrad=True)
