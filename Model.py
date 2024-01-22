@@ -127,10 +127,10 @@ class TextEncoder(nn.Module):
         
     
 class Model(nn.Module):
-    def __init__(self, model_name, num_node_features, nout, nhid, graph_hidden_channels, trainable):
+    def __init__(self, model_name, num_node_features, nout, nhid, graph_hidden_channels):
         super(Model, self).__init__()
         self.graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
-        self.text_encoder = TextEncoder(model_name, trainable)
+        self.text_encoder = TextEncoder(model_name)
         
     def forward(self, graph_batch, input_ids, attention_mask):
         graph_encoded = self.graph_encoder(graph_batch)
