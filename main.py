@@ -40,7 +40,7 @@ accumulation_steps = target_batch_size // batch_size
 learning_rate = args.lr
 patience = args.patience
 
-epoch_finetune = args.epoch_finetue -1
+epoch_finetune = args.epoch_finetune -1
 
 
 val_loader = DataLoader(val_dataset, batch_size=batch_size # num_workers = 4 + pin_memory = True supposed to speed up things
