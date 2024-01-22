@@ -98,11 +98,12 @@ optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
 
 if len(chkpt) != 0:
   print('loading checkpoint...')
-  checkpoint = torch.load(chkpt[-1])
+  checkpoint = torch.load(chkpt[-1], map_location = torch.device('cpu'))
   model.load_state_dict(checkpoint['model_state_dict'])
   optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
   epoch = checkpoint['epoch']
   loss = checkpoint['loss']
+
   model.text_encoder.set_trainable_layers(trainable)
   optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
@@ -125,8 +126,6 @@ epoch = 0
 
 
 pretrained_graph_encoder = args.pretrained_graph_encoder
-
-
 if pretrained_graph_encoder is not None:
     
     print('Loading pretrained graph encoder...')
@@ -223,7 +222,7 @@ for i in range(epoch, epoch+nb_epochs):
     elif i != epoch_finetune:
         j += 1
         
-        checkpoint = torch.load(save_path)
+        checkpoint = torch.load(save_path,  map_location = torch.device('cpu'))
         model.load_state_dict(checkpoint['model_state_dict'])
         
         if patience-j > 1:
@@ -259,7 +258,7 @@ for i in range(epoch, epoch+nb_epochs):
 torch.cuda.empty_cache()
 gc.collect()
 print('loading best model...')
-checkpoint = torch.load(save_path)
+checkpoint = torch.load(save_path,  map_location = torch.device('cpu'))
 model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()
 
