@@ -87,7 +87,7 @@ def get_scheduler(scheduler_name):
     return scheduler
 
 scheduler = get_scheduler(scheduler_name)
-print('test: ', scheduler.get_last_lr())
+print('test: ', scheduler.optimizer.param_groups[0]['lr'])
 
 
 dir_name = './'
@@ -236,7 +236,7 @@ for i in range(epoch, epoch+nb_epochs):
 
         new_batch_size = 512; printEvery = 10
         
-        old_lr = scheduler.get_last_lr()
+        old_lr = scheduler.optimizer.param_groups[0]['lr']
         learning_rate = new_batch_size / batch_size * old_lr
 
                 
