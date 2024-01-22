@@ -237,7 +237,7 @@ for i in range(epoch, epoch+nb_epochs):
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01, amsgrad=True)
 
-        batch_size = 512
+        batch_size = 512; printEvery = 10
         val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
         scheduler = get_scheduler(scheduler_name)
 
