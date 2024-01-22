@@ -76,7 +76,7 @@ total_steps = nb_epochs * len(train_loader)
 def get_scheduler(scheduler_name):
 
     if scheduler_name == 'reduce_on_plateau':
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=2, threshold=1e-4, threshold_mode='rel')
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=1, threshold=1e-4, threshold_mode='rel')
     elif scheduler_name == 'one_cycle':
         scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*2,total_steps=nb_epochs* len(train_loader))
     elif scheduler_name == 'cosine_warmup':
@@ -233,15 +233,22 @@ for i in range(epoch, epoch+nb_epochs):
     if i == epoch_finetune:
         print("Full tranining done! Finetuning last BERT layers")
         model.text_encoder.set_trainable_layers('output')
+
+        new_batch_size = 512; printEvery = 10
+        
+        old_lr = scheduler.get_last_lr()
+        learning_rate = new_batch_size / batch_size * old_lr
+
+                
         optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01, amsgrad=True)
 
-        batch_size = 512; printEvery = 10
+        batch_size = new_batch_size
         val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=True)
-        scheduler = get_scheduler(scheduler_name)
+        scheduler = get_scheduler(scheduler_name) 
 
-        val_loss = 1_000_000 # insure we do at least 1 step of 
+        best_validation_loss = val_loss = 1_000_000
         
 
 
