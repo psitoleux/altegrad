@@ -231,13 +231,13 @@ for i in range(epoch, epoch+nb_epochs):
                 print('validation loss has not improved in ', patience, ' epoch(s), we stop training')
                 break
     if i == epoch_finetune:
-        print("Full tranining done! Finetuning last BERT layers")
+        print("Full tranining done!")
         model.text_encoder.set_trainable_layers('output')
 
         new_batch_size = 512; printEvery = 10
         
         old_lr = scheduler.optimizer.param_groups[0]['lr']
-        learning_rate = new_batch_size / batch_size * old_lr
+        learning_rate = old_lr * new_batch_size / batch_size 
 
                 
         optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
