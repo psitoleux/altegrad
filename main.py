@@ -92,6 +92,9 @@ for item in files:
         chkpt += [os.path.join(dir_name, item)]
 chkpt = sorted(chkpt)
 
+optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
+                                betas=(0.9, 0.999),
+                                weight_decay=0.01, amsgrad=True)
 
 if len(chkpt) != 0:
   print('loading checkpoint...')
@@ -101,11 +104,12 @@ if len(chkpt) != 0:
   epoch = checkpoint['epoch']
   loss = checkpoint['loss']
   model.set_trainable_layers(trainable)
-  print('Done!')
-
-optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
+  optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01, amsgrad=True)
+  
+  print('Done!')
+
 
 scheduler = get_scheduler(scheduler_name)
 
