@@ -87,7 +87,7 @@ def get_scheduler(scheduler_name):
     return scheduler
 
 scheduler = get_scheduler(scheduler_name)
-
+print('test: ', scheduler.get_last_lr())
 
 
 dir_name = './'
