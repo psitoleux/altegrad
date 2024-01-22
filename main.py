@@ -103,7 +103,7 @@ if len(chkpt) != 0:
   optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
   epoch = checkpoint['epoch']
   loss = checkpoint['loss']
-  model.set_trainable_layers(trainable)
+  model.text_encoder.set_trainable_layers(trainable)
   optimizer = optim.AdamW(model.parameters(), lr=learning_rate,
                                 betas=(0.9, 0.999),
                                 weight_decay=0.01, amsgrad=True)
