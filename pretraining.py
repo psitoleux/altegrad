@@ -66,13 +66,18 @@ optimizer = optim.AdamW(graph_encoder.parameters(), lr=lr,
                         amsgrad = True)
 
 total_steps = nb_epochs * len(train_loader)
-#scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=2, threshold=1e-4, threshold_mode='rel')
 
-#scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=lr*2,total_steps=nb_epochs* len(train_loader))
+scheduler_name = args.scheduler.lower()
 
-scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps)
 
-#scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = args.nb_cycles)
+if scheduler_name == 'reduce_on_plateau':
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=2, threshold=1e-4, threshold_mode='rel')
+elif scheduler_name == 'one_cycle':
+    scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=lr*2,total_steps=nb_epochs* len(train_loader))
+elif scheduler_name == 'cosine_warmup':
+    scheduler = get_cosine_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps)
+elif scheduler_name == 'cosine_warmup_restarts':
+    scheduler = get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps = args.warmup_epochs*total_steps // nb_epochs ,  num_training_steps = total_steps, num_cycles = args.nb_cycles)
 
 
 
@@ -150,6 +155,7 @@ for i in range(nb_epochs):
             k += 1
         if k == patience:
             break
-        #scheduler.step(val_loss)
+        
+        scheduler.step(val_loss)
         
 

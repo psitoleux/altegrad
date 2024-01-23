@@ -21,6 +21,11 @@ for df in df_[1:]:
         if col!='ID':
             solution[col] = solution[col] + df[col]
 
+
+for col in solution.columns:
+    if col !='ID':
+        solution[col] = solution[col] / len(df_)
+
 print('Saving results...')
 solution.to_csv('submission.csv', index=False)
 print('Done!')

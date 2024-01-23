@@ -73,7 +73,7 @@ total_steps = nb_epochs * len(train_loader)
 def get_scheduler(scheduler_name):
 
     if scheduler_name == 'reduce_on_plateau':
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=1, threshold=1e-4, threshold_mode='rel')
+        scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1, patience=1, threshold=1e-4, threshold_mode='rel')
     elif scheduler_name == 'one_cycle':
         scheduler = optim.lr_scheduler.OneCycleLR(optimizer,max_lr=learning_rate*2,total_steps=nb_epochs* len(train_loader))
     elif scheduler_name == 'cosine_warmup':
