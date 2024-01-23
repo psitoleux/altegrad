@@ -20,7 +20,7 @@ from tqdm import tqdm, trange
 
 args= get_main_parser()
 
-pin_memory = False
+pin_memory = True
 
 model_name = args.model_name
 nout = args.nout
