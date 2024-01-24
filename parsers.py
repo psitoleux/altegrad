@@ -27,8 +27,16 @@ def get_main_parser():
                         help="Learning rate (default: 4e-5)")
     parser.add_argument("--epochs", type=int, default=15,
                         help="Number of training epochs (default: 15)")
+
+
     parser.add_argument("--temperature", type=float, default=0.1,
                         help="Info NCE temperature (default: 0.1)")
+    parser.add_argument("--Tmin", type=float, default=0.05,
+                        help="Min Info NCE temperature for cycle schedule (default: 0.05)")
+    parser.add_argument("--Tmax", type=float, default=0.6,
+                        help="Max Info NCE temperature for cycle schedule (default: 0.6)")
+    parser.add_argument("--epochs_per_cycle", type=int, default=15,
+                        help="Period of the temperature schedule (default: 15)")
 
 
     parser.add_argument("--scheduler", type=str, default='',

@@ -137,12 +137,26 @@ if pretrained_graph_encoder is not None:
     print('Done!')
 
 
+schedule_temperature = True
+
+
+
+def temperature_cycle(epoch, Tmin=args.Tmin, Tmax=args.Tmax, epochs_per_cycle = args.epochs_per_cycle):
+
+    return Tmin + (Tmax - Tmin)*np.cos( 2 * np.pi * epoch / epochs_per_cycle)
+
+
 
 for i in range(epoch, epoch+nb_epochs):
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = 4, pin_memory=pin_memory)
     print('-----EPOCH{}-----'.format(i+1))
     optimizer.zero_grad(set_to_none=True)
     model.train()
+    if schedule_temperature:
+        temperature = temperature_cycle(i)
+        loss_function = get_InfoNCE(temperature)
+        print('Temperature', temperature)
+
     for batch in train_loader:
         torch.cuda.empty_cache()
         gc.collect()
