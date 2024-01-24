@@ -17,7 +17,7 @@ def negative_sampling_contrastive_loss(v1, v2, labels):
 
 def get_InfoNCE(temperature):
     INCE = InfoNCE(temperature=temperature)
-    def info_nce_loss(v1,v2, temperature):
+    def info_nce_loss(v1,v2):
         return INCE(v1,v2)+INCE(v2,v1)
     return info_nce_loss
 
