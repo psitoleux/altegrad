@@ -1,6 +1,6 @@
 from dataloader import GraphTextDataset, GraphDataset, TextDataset
 
-from loss import contrastive_loss, negative_sampling_contrastive_loss, info_nce_loss
+from loss import contrastive_loss, negative_sampling_contrastive_loss, get_InfoNCE
 from info_nce import InfoNCE
 
 from torch_geometric.loader import DataLoader
@@ -40,6 +40,10 @@ accumulation_steps = target_batch_size // batch_size
 learning_rate = args.lr
 patience = args.patience
 
+temperature = args.temperature
+loss_function = get_InfoNCE(temperature)
+
+
 epoch_finetune = args.epoch_finetune -1
 
 
@@ -71,7 +75,7 @@ total_steps = nb_epochs * len(train_loader)
 
 
 def get_scheduler(scheduler_name):
-
+    scheduler = None
     if scheduler_name == 'reduce_on_plateau':
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.1, patience=1, threshold=1e-4, threshold_mode='rel')
     elif scheduler_name == 'one_cycle':
@@ -154,7 +158,7 @@ for i in range(epoch, epoch+nb_epochs):
             x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-            current_loss = info_nce_loss(x_graph, x_text) 
+            current_loss = loss_function(x_graph, x_text) 
 
         scaler.scale(current_loss).backward()
         loss += current_loss.item()
@@ -191,7 +195,7 @@ for i in range(epoch, epoch+nb_epochs):
             x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-            current_loss = info_nce_loss(x_graph, x_text)
+            current_loss = loss_function(x_graph, x_text)
             
             val_loss += current_loss.item()
     best_validation_loss = min(best_validation_loss, val_loss)

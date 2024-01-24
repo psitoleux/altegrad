@@ -15,9 +15,11 @@ def negative_sampling_contrastive_loss(v1, v2, labels):
   return BCEL(logits, eye) + BCEL(torch.transpose(logits, 0, 1), eye), logits.diag() > 0
 
 
-INCE = InfoNCE()
-def info_nce_loss(v1,v2):
-    return INCE(v1,v2)+INCE(v2,v1)
+def get_InfoNCE(temperature):
+    INCE = InfoNCE(temperature=temperature)
+    def info_nce_loss(v1,v2, temperature):
+        return INCE(v1,v2)+INCE(v2,v1)
+    return info_nce_loss
 
 def pretraining_loss(v):
     return INCE(v,v)

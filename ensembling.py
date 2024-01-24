@@ -26,7 +26,7 @@ def weight(score):
 
 
 weights_ = weight(submission_scores_)
-print('Expected score', 1 - 1/np.sum(weights_))
+print('Max expected score', 1 - 1/np.sum(weights_))
 
 
 
