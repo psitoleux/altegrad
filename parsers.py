@@ -28,7 +28,7 @@ def get_main_parser():
     parser.add_argument("--epochs", type=int, default=15,
                         help="Number of training epochs (default: 15)")
     parser.add_argument("--temperature", type=float, default=0.1,
-                        help="Info NCE temperature (default: 0.1))
+                        help="Info NCE temperature (default: 0.1)")
 
 
     parser.add_argument("--scheduler", type=str, default='',
