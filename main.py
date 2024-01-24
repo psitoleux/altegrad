@@ -143,7 +143,7 @@ schedule_temperature = True
 
 def temperature_cycle(epoch, Tmin=args.Tmin, Tmax=args.Tmax, epochs_per_cycle = args.epochs_per_cycle):
 
-    return Tmin + (Tmax - Tmin)*np.cos( 2 * np.pi * epoch / epochs_per_cycle)
+    return Tmin + (Tmax - Tmin)*(1 + np.cos( 2 * np.pi * epoch / epochs_per_cycle))
 
 
 
