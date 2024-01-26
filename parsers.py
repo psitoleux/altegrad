@@ -22,8 +22,8 @@ def get_main_parser():
                         help="Batch size per GPU (default: 64)")
     parser.add_argument("--target_batch_size", type=int, default=64,
                         help="Targeted effective batch size after gradient accumulation (default: 64)")
-    parser.add_argument("--num_workers", type=int, default=0,
-                        help="Setup num_workers parameter for dataloader (default: 0)")
+    parser.add_argument("--num_workers", type=int, default=4,
+                        help="Setup num_workers parameter for dataloader (default: 4)")
 
     parser.add_argument("--lr", type=float, default=4e-5,
                         help="Learning rate (default: 4e-5)")
