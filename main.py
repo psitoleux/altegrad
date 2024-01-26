@@ -231,11 +231,11 @@ for i in range(epoch, epoch+nb_epochs):
     best_validation_loss = np.minimum(best_validation_loss, val_losses)
     
     if scheduler_name == 'reduce_on_plateau':
-        scheduler.step(np.max(val_loss)) 
+        scheduler.step(np.max(val_losses)) 
 
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', )
     for i,T in T_:
-        print('Temperature:', T, 'loss', val_losses[i])
+        print('Temperature:', T, 'loss', val_losses[i] / len(val_loader))
 
 
     if not np.any(np.heaviside(best_validation_loss - val_losses), 0):
