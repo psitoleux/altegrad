@@ -138,11 +138,24 @@ if pretrained_graph_encoder is not None:
 
 
 schedule_temperature = True
+Tmin = args.Tmin
+Tmax = args.Tmax
+epochs_per_cycle = args.epochs_per_cycle
 
 
+
+val_loss_functions = []
+T_ = [0.1]
+
+if schedule_temperature == True:
+    for T in [Tmin, 0.1, Tmax]:
+        val_loss_functions += [get_InfoNCE(T)]
+    best_validation_loss = best_validation_loss*np.ones(3)
+else:
+    val_loss_functions = [get_InfoNCE(0.1)]
+    best_validation_loss = best_validation_loss*np.ones(1)
 
 def temperature_cycle(epoch, Tmin=args.Tmin, Tmax=args.Tmax, epochs_per_cycle = args.epochs_per_cycle):
-
     return Tmin + 0.5 * (Tmax - Tmin)*(1 + np.cos( 2 * np.pi * epoch / epochs_per_cycle))
 
 
@@ -194,7 +207,7 @@ for i in range(epoch, epoch+nb_epochs):
             losses.append(loss)
             loss = 0 
 
-    val_loss = 0
+    val_losses = np.array(len(val_loss_functions) * [0.0])
     model.eval()
     for batch in val_loader:
         torch.cuda.empty_cache()
@@ -209,16 +222,23 @@ for i in range(epoch, epoch+nb_epochs):
             x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
-            current_loss = loss_function(x_graph, x_text)
+            current_losses = [val_fn(x_graph, x_text) for val_fn in val_loss_functions]
+            loss_function(x_graph, x_text)
             
-            val_loss += current_loss.item()
-    best_validation_loss = min(best_validation_loss, val_loss)
+            for i,current_loss in enumerate(current_losses):
+                val_losses[i] += current_loss.item()
+
+    best_validation_loss = np.minimum(best_validation_loss, val_losses)
     
     if scheduler_name == 'reduce_on_plateau':
-        scheduler.step(val_loss) 
+        scheduler.step(np.max(val_loss)) 
 
-    print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', str(val_loss/len(val_loader)) )
-    if best_validation_loss==val_loss:
+    print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', )
+    for i,T in T_:
+        print('Temperature:', T, 'loss', val_losses[i])
+
+
+    if not np.any(np.heaviside(best_validation_loss - val_losses), 0):
         print('validation loss improved saving checkpoint...')
         save_path = os.path.join('./', 'model'+str(i)+'.pt')
 
@@ -232,8 +252,6 @@ for i in range(epoch, epoch+nb_epochs):
         'epoch': i,
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
-        'validation_accuracy': val_loss,
-        'loss': loss,
         }, save_path)
         print('checkpoint saved to: {}'.format(save_path))
         j = 0
