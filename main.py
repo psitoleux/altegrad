@@ -149,7 +149,8 @@ val_loss_functions = []
 T_ = [0.1]
 
 if schedule_temperature == True:
-    for T in [Tmin, 0.1, Tmax]:
+    T_ = [Tmin, 0.1, Tmax]
+    for T in T_:
         val_loss_functions += [get_InfoNCE(T)]
     best_validation_loss = best_validation_loss*np.ones(3)
 else:
@@ -235,7 +236,7 @@ for i in range(epoch, epoch+nb_epochs):
         scheduler.step(np.max(val_losses)) 
 
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', )
-    for i,T in T_:
+    for i,T in enumerate(T_):
         print('Temperature:', T, 'loss', val_losses[i] / len(val_loader))
 
 
