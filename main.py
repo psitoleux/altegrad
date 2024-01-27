@@ -149,8 +149,11 @@ val_loss_functions = []
 T_ = [0.1]
 
 
+#def temperature_cycle(epoch, Tmin=args.Tmin, Tmax=args.Tmax, epochs_per_cycle = args.epochs_per_cycle):
+#    return Tmin + 0.5 * (Tmax - Tmin)*(1 + np.cos( 2 * np.pi * epoch / epochs_per_cycle))
+
 def temperature_cycle(epoch, Tmin=args.Tmin, Tmax=args.Tmax, epochs_per_cycle = args.epochs_per_cycle):
-    return Tmin + 0.5 * (Tmax - Tmin)*(1 + np.cos( 2 * np.pi * epoch / epochs_per_cycle))
+    return Tmin + (epoch % (epochs_per_cycle+1)) / epochs_per_cycle  * (Tmax - Tmin) 
 
 if schedule_temperature == True:
     T_ = np.unique(np.round([temperature_cycle(epoch) for epoch in range((epochs_per_cycle)], decimals=2)))
