@@ -149,7 +149,7 @@ val_loss_functions = []
 T_ = [0.1]
 
 if schedule_temperature == True:
-    T_ = [Tmin, 0.1, Tmax]
+    T_ = [Tmin, 0.2, Tmax]
     for T in T_:
         val_loss_functions += [get_InfoNCE(T)]
     best_validation_loss = best_validation_loss*np.ones(3)
@@ -240,7 +240,7 @@ for i in range(epoch, epoch+nb_epochs):
         print('Temperature:', T, 'loss', val_losses[idx_t] / len(val_loader))
 
 
-    if not np.any(np.heaviside(best_validation_loss - val_losses,0)):
+    if (not np.any(np.heaviside(val_losses - best_validation_loss ,0))) or schedule_temperature:
         print('validation loss improved saving checkpoint...')
         save_path = os.path.join('./', 'model'+str(i)+'.pt')
 
