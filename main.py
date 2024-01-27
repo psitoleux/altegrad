@@ -240,7 +240,7 @@ for i in range(epoch, epoch+nb_epochs):
         print('Temperature:', T, 'loss', val_losses[i] / len(val_loader))
 
 
-    if not np.any(np.heaviside(best_validation_loss - val_losses), 0):
+    if not np.any(np.heaviside(best_validation_loss - val_losses,0)):
         print('validation loss improved saving checkpoint...')
         save_path = os.path.join('./', 'model'+str(i)+'.pt')
 
