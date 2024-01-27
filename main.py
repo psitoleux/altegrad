@@ -153,7 +153,7 @@ def temperature_cycle(epoch, Tmin=args.Tmin, Tmax=args.Tmax, epochs_per_cycle = 
     return Tmin + 0.5 * (Tmax - Tmin)*(1 + np.cos( 2 * np.pi * epoch / epochs_per_cycle))
 
 if schedule_temperature == True:
-    T_ = np.unique(np.round([temperature_cycle(epoch) for epoch in range(epochs_per_cycle // 2)], decimals=2))
+    T_ = np.unique(np.round([temperature_cycle(epoch) for epoch in range((epochs_per_cycle)], decimals=2)))
     for T in T_:
         val_loss_functions += [get_InfoNCE(T)]
     best_validation_loss = best_validation_loss*np.ones(len(T_))
