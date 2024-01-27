@@ -148,18 +148,18 @@ epochs_per_cycle = args.epochs_per_cycle
 val_loss_functions = []
 T_ = [0.1]
 
-if schedule_temperature == True:
-    T_ = [Tmin, 0.2, Tmax]
-    for T in T_:
-        val_loss_functions += [get_InfoNCE(T)]
-    best_validation_loss = best_validation_loss*np.ones(3)
-else:
-    val_loss_functions = [get_InfoNCE(0.1)]
-    best_validation_loss = best_validation_loss*np.ones(1)
 
 def temperature_cycle(epoch, Tmin=args.Tmin, Tmax=args.Tmax, epochs_per_cycle = args.epochs_per_cycle):
     return Tmin + 0.5 * (Tmax - Tmin)*(1 + np.cos( 2 * np.pi * epoch / epochs_per_cycle))
 
+if schedule_temperature == True:
+    T_ = np.unique([temperature_cycle(epoch) for epoch in range(epochs_per_cycle)])
+    for T in T_:
+        val_loss_functions += [get_InfoNCE(T)]
+    best_validation_loss = best_validation_loss*np.ones(len(T_))
+else:
+    val_loss_functions = [get_InfoNCE(0.1)]
+    best_validation_loss = best_validation_loss*np.ones(1)
 
 
 for i in range(epoch, epoch+nb_epochs):
@@ -240,7 +240,7 @@ for i in range(epoch, epoch+nb_epochs):
         print('Temperature:', T, 'loss', val_losses[idx_t] / len(val_loader))
 
 
-    if (not np.any(np.heaviside(val_losses - best_validation_loss ,0))) or schedule_temperature:
+    if (not np.any(np.heaviside(val_losses - best_validation_loss ,0))):
         print('validation loss improved saving checkpoint...')
         save_path = os.path.join('./', 'model'+str(i)+'.pt')
 
