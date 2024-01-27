@@ -236,8 +236,8 @@ for i in range(epoch, epoch+nb_epochs):
         scheduler.step(np.max(val_losses)) 
 
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', )
-    for i,T in enumerate(T_):
-        print('Temperature:', T, 'loss', val_losses[i] / len(val_loader))
+    for idx_t,T in enumerate(T_):
+        print('Temperature:', T, 'loss', val_losses[idx_t] / len(val_loader))
 
 
     if not np.any(np.heaviside(best_validation_loss - val_losses,0)):
