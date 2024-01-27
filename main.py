@@ -156,7 +156,7 @@ def temperature_cycle(epoch, Tmin=args.Tmin, Tmax=args.Tmax, epochs_per_cycle = 
     return Tmin + (epoch % (epochs_per_cycle+1)) / epochs_per_cycle  * (Tmax - Tmin) 
 
 if schedule_temperature == True:
-    T_ = np.unique(np.round([temperature_cycle(epoch) for epoch in range(epochs_per_cycle)], decimals=2))
+    T_ = np.unique(np.round([temperature_cycle(epoch) for epoch in range(epochs_per_cycle)], decimals=3))
     for T in T_:
         val_loss_functions += [get_InfoNCE(T)]
     best_validation_loss = best_validation_loss*np.ones(len(T_))
@@ -230,8 +230,8 @@ for i in range(epoch, epoch+nb_epochs):
             current_losses = [val_fn(x_graph, x_text) for val_fn in val_loss_functions]
             loss_function(x_graph, x_text)
             
-            for i,current_loss in enumerate(current_losses):
-                val_losses[i] += current_loss.item()
+            for idx,current_loss in enumerate(current_losses):
+                val_losses[idx] += current_loss.item()
 
     best_validation_loss = np.minimum(best_validation_loss, val_losses)
     
