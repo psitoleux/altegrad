@@ -204,10 +204,6 @@ for i in range(epoch, epoch+nb_epochs):
                                 attention_mask.to(device))
             current_loss = loss_function(x_graph, x_text) 
 
-        del x_graph, x_text
-        torch.cuda.empty_cache()
-        gc.collect()
-
         scaler.scale(current_loss).backward()
         loss += current_loss.item()
 
