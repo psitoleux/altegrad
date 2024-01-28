@@ -188,6 +188,9 @@ for i in range(epoch, epoch+nb_epochs):
             g['lr'] = 0.001
 
     for batch in train_loader:
+        torch.empty_cache()
+        gc.collect()
+
         input_ids = batch.input_ids
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
