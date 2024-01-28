@@ -189,16 +189,14 @@ for i in range(epoch, epoch+nb_epochs):
         attention_mask = batch.attention_mask
         batch.pop('attention_mask')
 
-        graph_batch = batch
-
-
         with torch.cuda.amp.autocast(): # mixed precision 
             x_graph, x_text = model(graph_batch.to(device), 
                                 input_ids.to(device), 
                                 attention_mask.to(device))
             current_loss = loss_function(x_graph, x_text) 
-            del x_graph, x_text
-            gc.collect()
+
+        del x_graph, x_text
+        gc.collect()
 
         scaler.scale(current_loss).backward()
         loss += current_loss.item()
