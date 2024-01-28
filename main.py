@@ -185,7 +185,7 @@ for i in range(epoch, epoch+nb_epochs):
 
         lr = lr_from_temperature(temperature)
         for g in optimizer.param_groups:
-            g['lr'] = 0.001
+            g['lr'] = lr
 
     for batch in train_loader:
         torch.cuda.empty_cache()
