@@ -31,9 +31,8 @@ gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
 
 print('Creating val_dataset...')
 val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
-print('Done! Creating train_dataset...')
+print('Creating train_dataset...')
 train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
-print('Done!')
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -198,7 +197,7 @@ for i in range(epoch, epoch+nb_epochs):
                                 input_ids.to(device), 
                                 attention_mask.to(device))
             current_loss = loss_function(x_graph, x_text) 
-            del x_graph, x_test
+            del x_graph, x_text
             gc.collect()
 
         scaler.scale(current_loss).backward()
