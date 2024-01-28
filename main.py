@@ -172,16 +172,20 @@ def lr_from_temperature(temperature, reference = 0.1):
 
     return learning_rate * temperature / reference
 
+optimizer.zero_grad(set_to_none=True)
 
 for i in range(epoch, epoch+nb_epochs):
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = num_workers, pin_memory=pin_memory)
     print('-----EPOCH{}-----'.format(i+1))
-    optimizer.zero_grad(set_to_none=True)
     model.train()
     if schedule_temperature:
         temperature = temperature_cycle(i)
         loss_function = get_InfoNCE(temperature)
         print('Temperature', temperature)
+
+        lr = lr_from_temperature(temperature)
+        for g in optimizer.param_groups:
+            g['lr'] = lr
 
     for batch in train_loader:
         input_ids = batch.input_ids
