@@ -29,8 +29,12 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 gt = np.load("./data/token_embedding_dict.npy", allow_pickle=True)[()]
 
+print('Creating val_dataset...')
 val_dataset = GraphTextDataset(root='./data/', gt=gt, split='val', tokenizer=tokenizer)
+print('Done! Creating train_dataset...')
 train_dataset = GraphTextDataset(root='./data/', gt=gt, split='train', tokenizer=tokenizer)
+print('Done!')
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -47,9 +51,10 @@ num_workers = args.num_workers
 
 epoch_finetune = args.epoch_finetune -1
 
-
 val_loader = DataLoader(val_dataset, batch_size=batch_size # num_workers = 4 + pin_memory = True supposed to speed up things
                         , shuffle=True, num_workers = num_workers, pin_memory=pin_memory)
+del val_dataset
+gc.collect()
 train_loader = DataLoader(train_dataset, batch_size=batch_size
                           , shuffle=True, num_workers = num_workers, pin_memory=pin_memory)
 
@@ -156,13 +161,17 @@ def temperature_cycle(epoch, Tmin=args.Tmin, Tmax=args.Tmax, epochs_per_cycle = 
     return Tmin + (epoch % (epochs_per_cycle+1)) / epochs_per_cycle  * (Tmax - Tmin) 
 
 if schedule_temperature == True:
-    T_ = np.unique(np.round([temperature_cycle(epoch) for epoch in range(epochs_per_cycle)], decimals=3))
+    T_ = np.unique(np.round([temperature_cycle(epoch) for epoch in range(epochs_per_cycle+1)], decimals=3))
     for T in T_:
         val_loss_functions += [get_InfoNCE(T)]
     best_validation_loss = best_validation_loss*np.ones(len(T_))
 else:
     val_loss_functions = [get_InfoNCE(0.1)]
     best_validation_loss = best_validation_loss*np.ones(1)
+
+def lr_from_temperature(temperature, reference = 0.1):
+
+    return learning_rate * temperature / reference
 
 
 for i in range(epoch, epoch+nb_epochs):
@@ -176,8 +185,6 @@ for i in range(epoch, epoch+nb_epochs):
         print('Temperature', temperature)
 
     for batch in train_loader:
-        torch.cuda.empty_cache()
-        gc.collect()
         input_ids = batch.input_ids
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
@@ -191,6 +198,8 @@ for i in range(epoch, epoch+nb_epochs):
                                 input_ids.to(device), 
                                 attention_mask.to(device))
             current_loss = loss_function(x_graph, x_text) 
+            del x_graph, x_test
+            gc.collect()
 
         scaler.scale(current_loss).backward()
         loss += current_loss.item()
