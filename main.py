@@ -185,13 +185,15 @@ for i in range(epoch, epoch+nb_epochs):
 
         lr = lr_from_temperature(temperature)
         for g in optimizer.param_groups:
-            g['lr'] = lr
+            g['lr'] = 0.001
 
     for batch in train_loader:
         input_ids = batch.input_ids
         batch.pop('input_ids')
         attention_mask = batch.attention_mask
         batch.pop('attention_mask')
+
+        graph_batch = batch
 
         with torch.cuda.amp.autocast(): # mixed precision 
             x_graph, x_text = model(graph_batch.to(device), 
