@@ -168,10 +168,6 @@ else:
     val_loss_functions = [get_InfoNCE(0.1)]
     best_validation_loss = best_validation_loss*np.ones(1)
 
-def lr_from_temperature(temperature, reference = 0.1):
-
-    return learning_rate * temperature / reference
-
 optimizer.zero_grad(set_to_none=True)
 
 for i in range(epoch, epoch+nb_epochs):
@@ -182,10 +178,6 @@ for i in range(epoch, epoch+nb_epochs):
         temperature = temperature_cycle(i)
         loss_function = get_InfoNCE(temperature)
         print('Temperature', temperature)
-
-        lr = lr_from_temperature(temperature)
-        for g in optimizer.param_groups:
-            g['lr'] = lr
 
     for batch in train_loader:
         torch.cuda.empty_cache()
