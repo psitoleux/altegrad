@@ -199,7 +199,7 @@ for i in range(epoch, epoch+nb_epochs):
                                 attention_mask.to(device))
             current_loss = loss_function(x_graph, x_text) 
 
-        df_train.loc(count_iter) = [temperature, current_loss]
+        df_train.loc[count_iter] = [temperature, current_loss]
         scaler.scale(current_loss).backward()
         loss += current_loss.item()
 
