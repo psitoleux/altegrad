@@ -157,10 +157,13 @@ class Model(nn.Module):
         
         if graph_encoder_name == 'graph_transformer':
             self.graph_encoder = GTransEncoder(num_node_features, nout, nhid, graph_hidden_channels)
+            print('Graph encoder: graph transformer')
         elif graph_encoder_name == 'gcn'
             self.graph_encoder = GCNEncoder(num_node_features, nout, nhid, graph_hidden_channels)
+            print('Graph encoder: GCN')
         else:
             self.graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
+            print('Graph encoder: GAT')
             
         
 
