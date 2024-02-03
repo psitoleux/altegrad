@@ -99,7 +99,7 @@ class GTransEncoder(GraphEncoder):
 
         self.layers = nn.ModuleList(self.layers)
 
-   def forward(self, graph_batch):
+    def forward(self, graph_batch):
        x, edge_index, batch = self.get_batch(graph_batch)
 
        for layer in self.layers:
