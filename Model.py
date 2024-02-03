@@ -2,15 +2,11 @@ from torch import nn
 import torch.nn.functional as F
 import torch
 
-from torch_geometric.nn import GCNConv, GATv2Conv
+from torch_geometric.nn import GCNConv, GATv2Conv, TransformerConv
 from torch_geometric.nn import global_mean_pool
 from transformers import AutoModel
 
 import numpy as np
-
-
-
-
 
 class GraphEncoder(nn.Module):
     def __init__(self, num_node_features, nout, nhid, graph_hidden_channels):
@@ -89,7 +85,35 @@ class GATEncoder(GraphEncoder):
 
         return x
 
-    
+class GTransEncoder(GraphEncoder):
+    def __init__(self, num_node_features, nout,  nhid, graph_hidden_channels):
+        GraphEncoder.__init__(self,num_node_features, nout, nhid, graph_hidden_channels, n_layers=3)
+
+        num_heads = 4
+
+        self.layers = []
+        self.layers += [TransformerConv(num_node_features, graph_hidden_channels // num_heads, heads = num_heads)]
+
+        for i in range(n_layers-1):
+            self.layers += [TransformerConv(graph_hidden_features, graph_hidden_features // num_heads, heads=num_heads)]
+
+        self.layers = nn.ModuleList(self.layers)
+
+   def forward(self, graph_batch):
+       x, edge_index, batch = self.get_batch(graph_batch)
+
+       for layer in self.layers:
+           x = layer(x, edge_index)
+           x = x.relu()
+
+        x = global_mean_pool(x,batch)
+        x = self.mlp(x)
+
+        return x
+
+
+
+
 class TextEncoder(nn.Module):
     def __init__(self, model_name):
         super(TextEncoder, self).__init__()
@@ -127,9 +151,19 @@ class TextEncoder(nn.Module):
         
     
 class Model(nn.Module):
-    def __init__(self, model_name, num_node_features, nout, nhid, graph_hidden_channels):
+    def __init__(self, model_name, num_node_features, nout, nhid, graph_hidden_channels, graph_encoder_name='gat'):
         super(Model, self).__init__()
-        self.graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
+ 
+        
+        if graph_encoder_name == 'graph_transformer':
+            self.graph_encoder = GTransEncoder(num_node_features, nout, nhid, graph_hidden_channels)
+        elif graph_encoder_name == 'gcn'
+            self.graph_encoder = GCNEncoder(num_node_features, nout, nhid, graph_hidden_channels)
+        else:
+            self.graph_encoder = GATEncoder(num_node_features, nout, nhid, graph_hidden_channels)
+            
+        
+
         self.text_encoder = TextEncoder(model_name)
         
     def forward(self, graph_batch, input_ids, attention_mask):

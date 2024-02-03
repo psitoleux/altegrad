@@ -6,6 +6,8 @@ def get_main_parser():
 
     parser.add_argument("--model_name", type=str, default="allenai/scibert_scivocab_uncased",
                         help="Transformer model name (default: allenai/scibert_scivocab_uncased)")
+    parser.add_argument("--graph_encoder", type=str, default="gat",
+                        help="Choosing graph encoder model (default: 'gat'")
     parser.add_argument("--nout", type=int, default=768,
                         help="Output dimension of the final layers (default: 768)")
     parser.add_argument("--num_node_features", type=int, default=300,

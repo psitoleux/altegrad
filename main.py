@@ -64,7 +64,7 @@ trainable = args.trainable
 print(trainable)
 
 model = Model(model_name=model_name, num_node_features=num_node_features
-              , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels) # nout = model hidden dim
+              , nout=nout, nhid=nhid, graph_hidden_channels=graph_hidden_channels, args.graph_encoder) # nout = model hidden dim
 model.text_encoder.set_trainable_layers(trainable)
 model.to(device)
 
