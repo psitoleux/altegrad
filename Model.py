@@ -95,7 +95,7 @@ class GTransEncoder(GraphEncoder):
         self.layers += [TransformerConv(num_node_features, graph_hidden_channels // num_heads, heads = num_heads)]
 
         for i in range(n_layers-1):
-            self.layers += [TransformerConv(graph_hidden_features, graph_hidden_features // num_heads, heads=num_heads)]
+            self.layers += [TransformerConv(graph_hidden_channels, graph_hidden_channels // num_heads, heads=num_heads)]
 
         self.layers = nn.ModuleList(self.layers)
 
