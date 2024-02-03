@@ -249,7 +249,7 @@ for i in range(epoch, epoch+nb_epochs):
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', )
     for idx_t,T in enumerate(T_):
         df_T = pd.DataFrame([[T_, val_losses[idx_t] / len(val_loader), count_iter]], df_val.columns)
-        df_val = pd.concat(df_val, df_T)
+        df_val = pd.concat([df_val, df_T])
         print('Temperature:', T, 'loss', val_losses[idx_t] / len(val_loader))
 
 
