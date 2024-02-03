@@ -86,8 +86,8 @@ class GATEncoder(GraphEncoder):
         return x
 
 class GTransEncoder(GraphEncoder):
-    def __init__(self, num_node_features, nout,  nhid, graph_hidden_channels):
-        GraphEncoder.__init__(self,num_node_features, nout, nhid, graph_hidden_channels, n_layers=3)
+    def __init__(self, num_node_features, nout,  nhid, graph_hidden_channels,n_layers=3):
+        GraphEncoder.__init__(self,num_node_features, nout, nhid, graph_hidden_channels)
 
         num_heads = 4
 
