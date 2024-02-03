@@ -170,8 +170,11 @@ else:
 
 optimizer.zero_grad(set_to_none=True)
 
+df_train = pd.DataFrame(columns = ['temperature', 'loss'])
+df_val = pd.DataFrame(columns = ['temperature', 'loss', 'iteration'])
+
 for i in range(epoch, epoch+nb_epochs):
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = num_workers, pin_memory=pin_memory)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers = num_workers, pin_memory=pin_memory, drop_last = True)
     print('-----EPOCH{}-----'.format(i+1))
     model.train()
     if schedule_temperature:
@@ -196,6 +199,7 @@ for i in range(epoch, epoch+nb_epochs):
                                 attention_mask.to(device))
             current_loss = loss_function(x_graph, x_text) 
 
+        df_train.loc(count_iter) = [temperature, current_loss]
         scaler.scale(current_loss).backward()
         loss += current_loss.item()
 
@@ -244,6 +248,8 @@ for i in range(epoch, epoch+nb_epochs):
 
     print('-----EPOCH'+str(i+1)+'----- done.  Validation loss: ', )
     for idx_t,T in enumerate(T_):
+        df_T = pd.DataFrame([[T_, val_losses[idx_t] / len(val_loader), count_iter]], df_val.columns)
+        df_val = pd.concat(df_val, df_T)
         print('Temperature:', T, 'loss', val_losses[idx_t] / len(val_loader))
 
 
@@ -349,3 +355,6 @@ solution = solution[['ID'] + [col for col in solution.columns if col!='ID']]
 print('Saving results...')
 solution.to_csv('submission.csv', index=False)
 print('Done!')
+
+df_train.to_csv('train_losses.csv')
+df_val.to_csv('val_losses.csv')
