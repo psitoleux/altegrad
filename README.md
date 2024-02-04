@@ -8,7 +8,10 @@ pip install info_nce
 pip install torch_geometric
 ```
 
+Then, after cloning this repository and having set the corresponding directory as the working one, using 
+
 ```python
-%run main.py --epochs 32 --batch_size 80 --lr 5e-5 --trainable all_but_embeddings --scheduler reduce_on_plateau --Tmin 0.05 --Tmax 0.2 --epochs_per_cycle 6 --graph_encoder graph_transformer
+%run main.py --epochs 32 --batch_size 80 --lr 5e-5 --trainable all_but_embeddings --Tmin 0.05 --Tmax 0.2 --epochs_per_cycle 6 --graph_encoder graph_transformer
 ```
 
+will train a model reaching ~ 0.885 public score (training on a P100, taking approximately 7 hours).
