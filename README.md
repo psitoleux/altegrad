@@ -4,7 +4,7 @@ This is the repository of the team PCD (Paul Sitoleux, Clément Teulier, Damien 
 Our experiments can be run from standard Google Colab/Kaggle notebooks, with two additional dependencies 
 
 ```bash
-pip install info_nce
+pip install info-nce-pytorch
 pip install torch_geometric
 ```
 
